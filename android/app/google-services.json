@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "523852357204",
+    "project_id": "dogcatch",
+    "storage_bucket": "dogcatch.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:523852357204:android:ba4b8d43df7f85a204d7c1",
+        "android_client_info": {
+          "package_name": "com.bahonika.dog_catch"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "523852357204-vjr4i89unmcm33osrlb5tj85vf65epov.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCQfwv4gY92PlFf8NsCsdEiRBJUzDGs_uc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "523852357204-vjr4i89unmcm33osrlb5tj85vf65epov.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
