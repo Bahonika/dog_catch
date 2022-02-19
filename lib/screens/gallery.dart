@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:dog_catch/screens/animal_card.dart';
+import 'package:dog_catch/screens/login.dart';
 import 'package:dog_catch/screens/statistics.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -17,10 +18,18 @@ class _GalleryState extends State<Gallery> {
   void cardAdd() {}
   var jsonData;
 
-  Future getData() async{
-    var response = await http.get(Uri.http(' ',' '),
-        headers: {"Content-Type": 'application/json; charset=utf-8'});
-    jsonData = jsonDecode(response.body);
+  Future<void> getData() async {
+    Uri url = Uri.https("projects.masu.edu.ru", "/lyamin/dug/api/animal_card");
+    var response = await http.get(url);
+    setState(() {
+      jsonData = json.decode(response.body);
+    });
+  }
+
+  @override
+  void initState() {
+    getData();
+    super.initState();
   }
 
   @override
@@ -29,53 +38,56 @@ class _GalleryState extends State<Gallery> {
       appBar: AppBar(
         title: const Text("Список животных"),
       ),
-      body: GridView.count(
-        crossAxisCount: 2,
-        padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.05),
-        crossAxisSpacing: MediaQuery.of(context).size.width * 0.05,
-        mainAxisSpacing: MediaQuery.of(context).size.width * 0.05,
-        children: List.generate(100, (index) {
-          return Hero(
-            tag: index,
-            child: GestureDetector(
-              onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => AnimalCard(index: index))),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: const Color.fromRGBO(159, 72, 72, 1),
-                  border: Border(
-                      bottom: BorderSide(
-                          width: 13,
-                          color: index % 3 == 1
-                              ? const Color.fromRGBO(53, 188, 164, 1)
-                              : const Color.fromRGBO(228, 160, 79, 1))),
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      const Color.fromRGBO(159, 72, 72, 1),
-                      index % 3 == 1
-                          ? const Color.fromRGBO(53, 188, 164, 1)
-                          : const Color.fromRGBO(228, 160, 79, 1)
-                    ],
-                    stops: const [0.9, 0.9],
+      body: jsonData != null
+          ? GridView.count(
+              crossAxisCount: 2,
+              padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.05),
+              crossAxisSpacing: MediaQuery.of(context).size.width * 0.05,
+              mainAxisSpacing: MediaQuery.of(context).size.width * 0.05,
+              children: List.generate(jsonData?.length ?? 0, (index) {
+                return Hero(
+                  tag: index,
+                  child: GestureDetector(
+                    onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => AnimalCard(
+                                index: index, data: jsonData[index]))),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color:
+                            utf8convert(jsonData[index]['status']) == "Выпущено"
+                                ? const Color.fromRGBO(53, 188, 164, 1)
+                                : const Color.fromRGBO(228, 160, 79, 1),
+                        border: Border(
+                            bottom: BorderSide(
+                                width: 10,
+                                color: utf8convert(jsonData[index]['status']) ==
+                                        "Выпущено"
+                                    ? const Color.fromRGBO(53, 188, 164, 1)
+                                    : const Color.fromRGBO(228, 160, 79, 1))),
+                      ),
+                      height: MediaQuery.of(context).size.width * 0.41,
+                      width: MediaQuery.of(context).size.width * 0.41,
+                      child: ClipRRect(
+                        borderRadius: const BorderRadius.only(
+                            bottomRight: Radius.circular(25)),
+                        child: Image.network(
+                          "https://projects.masu.edu.ru/" +
+                              jsonData[index]["profile_pic"],
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
                   ),
-                ),
-                height: MediaQuery.of(context).size.width * 0.41,
-                width: MediaQuery.of(context).size.width * 0.41,
-                child: Center(
-                  child: Text(
-                    'Item $index',
-                    style: Theme.of(context).textTheme.headline5,
-                  ),
-                ),
+                );
+              }))
+          : const Center(
+              child: Text(
+                "Загрузка",
+                style: TextStyle(fontSize: 30),
               ),
             ),
-          );
-        }),
-      ),
       floatingActionButton: widget.role == "org"
           ? FloatingActionButton(
               onPressed: () => Navigator.push(context,

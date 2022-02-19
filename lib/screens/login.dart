@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:dog_catch/screens/gallery.dart';
 import 'package:flutter/material.dart';
 
@@ -6,6 +8,13 @@ void main() {
   // SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive,
   //     overlays: [SystemUiOverlay.bottom]);
 }
+
+
+String utf8convert(String text) {
+  List<int> bytes = text.toString().codeUnits;
+  return utf8.decode(bytes);
+}
+
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
