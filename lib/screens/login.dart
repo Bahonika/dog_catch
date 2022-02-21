@@ -9,12 +9,10 @@ void main() {
   //     overlays: [SystemUiOverlay.bottom]);
 }
 
-
 String utf8convert(String text) {
   List<int> bytes = text.toString().codeUnits;
   return utf8.decode(bytes);
 }
-
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
@@ -25,8 +23,9 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
+          colorScheme: ColorScheme.fromSwatch()
+              .copyWith(secondary: const Color.fromRGBO(241, 143, 1, 1))
+              .copyWith(primary: const Color.fromRGBO(87, 134, 12, 1.0))),
       home: const MyHomePage(title: 'Flutter Demo Home Page'),
     );
   }

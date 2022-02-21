@@ -26,8 +26,7 @@ class _AnimalCardState extends State<AnimalCard> {
       status = "",
       catchDate = "",
       releaseDate = "";
-  int catch_info = -1,
-  release_info = -1;
+  int catch_info = -1, release_info = -1;
 
   @override
   void initState() {
@@ -65,10 +64,10 @@ class _AnimalCardState extends State<AnimalCard> {
         ),
         bottomNavigationBar: BottomNavigationBar(
           elevation: 2,
-          backgroundColor: Colors.blue,
+          backgroundColor: Theme.of(context).colorScheme.primary,
           showSelectedLabels: false,
           showUnselectedLabels: false,
-          selectedItemColor: Colors.orangeAccent,
+          selectedItemColor: Theme.of(context).colorScheme.secondary,
           currentIndex: _currentIndex,
           onTap: (index) => setState(() {
             pageController.animateToPage(index,
@@ -101,111 +100,101 @@ class _AnimalCardState extends State<AnimalCard> {
                 ),
                 SingleChildScrollView(
                   scrollDirection: Axis.vertical,
-                  child: Container(
-                      color: const Color.fromRGBO(224, 195, 195, 1.0),
-                      child: DataTable(
-                          columns: const [
-                            DataColumn(
-                                label: Text(
-                              "Тип данных",
-                              style: TextStyle(fontStyle: FontStyle.italic),
-                            )),
-                            DataColumn(
-                                label: Text(
-                              "Данные",
-                              style: TextStyle(fontStyle: FontStyle.italic),
-                            )),
+                  child: DataTable(
+                      columns: const [
+                        DataColumn(
+                            label: Text(
+                          "Тип данных",
+                          style: TextStyle(fontStyle: FontStyle.italic),
+                        )),
+                        DataColumn(
+                            label: Text(
+                          "Данные",
+                          style: TextStyle(fontStyle: FontStyle.italic),
+                        )),
+                      ],
+                      rows: [
+                        DataRow(
+                          cells: <DataCell>[
+                            const DataCell(Text('Тип')),
+                            DataCell(Text(kind)),
                           ],
-                          // kind
-                          // sex
-                          // chin_n
-                          // badge_n
-                          // info
-                          // catch_info
-                          // release_info
-                          // org
-                          // municipality
-                          // status
-                          // catch_date
-                          // release_date
-                          rows: [
-                            DataRow(
-                              cells: <DataCell>[
-                                const DataCell(Text('Тип')),
-                                DataCell(Text(kind)),
-                              ],
-                            ),
-                            DataRow(
-                              cells: <DataCell>[
-                                const DataCell(Text('Пол')),
-                                DataCell(Text(sex)),
-                              ],
-                            ),
-                            DataRow(
-                              cells: <DataCell>[
-                                const DataCell(Text('Номер чипа')),
-                                DataCell(Text(chinN)),
-                              ],
-                            ),
-                            DataRow(
-                              cells: <DataCell>[
-                                const DataCell(Text('Номер бирки')),
-                                DataCell(Text(badgeN)),
-                              ],
-                            ),
-                            DataRow(
-                              cells: <DataCell>[
-                                const DataCell(Text('Информация')),
-                                DataCell(Text(info)),
-                              ],
-                            ),
-                            DataRow(
-                              cells: <DataCell>[
-                                const DataCell(Text('Инофрмация об отлове')),
-                                DataCell(Text(catch_info.toString())),
-                              ],
-                            ),
-                            DataRow(
-                              cells: <DataCell>[
-                                const DataCell(Text('Инофрмация об выпуске')),
-                                DataCell(Text(release_info.toString())),
-                              ],
-                            ),
-                            DataRow(
-                              cells: <DataCell>[
-                                const DataCell(Text('Организация')),
-                                DataCell(Text(org)),
-                              ],
-                            ),
-                            DataRow(
-                              cells: <DataCell>[
-                                const DataCell(Text('Муниципалитет')),
-                                DataCell(Text(municipality)),
-                              ],
-                            ),
-                            DataRow(
-                              cells: <DataCell>[
-                                const DataCell(Text('Статус')),
-                                DataCell(Text(status)),
-                              ],
-                            ),
-                            DataRow(
-                              cells: <DataCell>[
-                                const DataCell(Text('Дата отлова')),
-                                DataCell(Text(catchDate)),
-                              ],
-                            ),
-                            DataRow(
-                              cells: <DataCell>[
-                                const DataCell(Text('Дата выпуска')),
-                                DataCell(Text(releaseDate)),
-                              ],
-                            ),
+                        ),
+                        DataRow(
+                          cells: <DataCell>[
+                            const DataCell(Text('Пол')),
+                            DataCell(Text(sex)),
                           ],
-                          border: TableBorder.symmetric(
-                            inside:
-                                const BorderSide(width: 2, color: Colors.green),
-                          ))),
+                        ),
+                        DataRow(
+                          cells: <DataCell>[
+                            const DataCell(Text('Номер чипа')),
+                            DataCell(Text(chinN)),
+                          ],
+                        ),
+                        DataRow(
+                          cells: <DataCell>[
+                            const DataCell(Text('Номер бирки')),
+                            DataCell(Text(badgeN)),
+                          ],
+                        ),
+                        DataRow(
+                          cells: <DataCell>[
+                            const DataCell(Text('Информация')),
+                            DataCell(Text(info)),
+                          ],
+                        ),
+                        DataRow(
+                          cells: <DataCell>[
+                            const DataCell(Text('Инофрмация об отлове')),
+                            DataCell(Text(catch_info.toString() == "-1"
+                                ? "Нет информации"
+                                : catch_info.toString())),
+                          ],
+                        ),
+                        DataRow(
+                          cells: <DataCell>[
+                            const DataCell(Text('Инофрмация об выпуске')),
+                            DataCell(Text(release_info.toString() == "-1"
+                                ? "Нет информации"
+                                : release_info.toString())),
+                          ],
+                        ),
+                        DataRow(
+                          cells: <DataCell>[
+                            const DataCell(Text('Организация')),
+                            DataCell(Text(org)),
+                          ],
+                        ),
+                        DataRow(
+                          cells: <DataCell>[
+                            const DataCell(Text('Муниципалитет')),
+                            DataCell(Text(municipality)),
+                          ],
+                        ),
+                        DataRow(
+                          cells: <DataCell>[
+                            const DataCell(Text('Статус')),
+                            DataCell(Text(status)),
+                          ],
+                        ),
+                        DataRow(
+                          cells: <DataCell>[
+                            const DataCell(Text('Дата отлова')),
+                            DataCell(Text(catchDate)),
+                          ],
+                        ),
+                        DataRow(
+                          cells: <DataCell>[
+                            const DataCell(Text('Дата выпуска')),
+                            DataCell(Text(releaseDate)),
+                          ],
+                        ),
+                      ],
+                      border: TableBorder.symmetric(
+                        inside:
+                            BorderSide(width: 2, color: Theme.of(context).colorScheme.primary),
+                      )),
                 ),
               ],
               scrollDirection: Axis.horizontal,

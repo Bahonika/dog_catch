@@ -57,15 +57,15 @@ class _GalleryState extends State<Gallery> {
                       decoration: BoxDecoration(
                         color:
                             utf8convert(jsonData[index]['status']) == "Выпущено"
-                                ? const Color.fromRGBO(53, 188, 164, 1)
-                                : const Color.fromRGBO(228, 160, 79, 1),
+                                ? Theme.of(context).colorScheme.primary
+                                : Theme.of(context).colorScheme.secondary,
                         border: Border(
                             bottom: BorderSide(
                                 width: 10,
                                 color: utf8convert(jsonData[index]['status']) ==
                                         "Выпущено"
-                                    ? const Color.fromRGBO(53, 188, 164, 1)
-                                    : const Color.fromRGBO(228, 160, 79, 1))),
+                                    ? Theme.of(context).colorScheme.primary
+                                    : Theme.of(context).colorScheme.secondary)),
                       ),
                       height: MediaQuery.of(context).size.width * 0.41,
                       width: MediaQuery.of(context).size.width * 0.41,
@@ -92,7 +92,7 @@ class _GalleryState extends State<Gallery> {
           ? FloatingActionButton(
               onPressed: () => Navigator.push(context,
                   MaterialPageRoute(builder: (context) => const Statistics())),
-              backgroundColor: const Color.fromRGBO(228, 160, 79, 1),
+              backgroundColor: Theme.of(context).colorScheme.primary,
               child: const Icon(Icons.stacked_line_chart),
             )
           : widget.role == "catcher"
@@ -104,14 +104,14 @@ class _GalleryState extends State<Gallery> {
                           context,
                           MaterialPageRoute(
                               builder: (context) => const Statistics())),
-                      backgroundColor: const Color.fromRGBO(228, 160, 79, 1),
+                      backgroundColor: Theme.of(context).colorScheme.secondary,
                       child: const Icon(Icons.stacked_line_chart),
                       heroTag: "stat",
                     ),
                     const SizedBox(height: 13),
                     FloatingActionButton(
                       onPressed: cardAdd,
-                      backgroundColor: const Color.fromRGBO(53, 188, 164, 1),
+                      backgroundColor: Theme.of(context).colorScheme.primary,
                       child: const Icon(Icons.add),
                       heroTag: "add",
                     ),
