@@ -5,8 +5,6 @@ import 'package:flutter/material.dart';
 
 void main() {
   runApp(const MyApp());
-  // SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive,
-  //     overlays: [SystemUiOverlay.bottom]);
 }
 
 String utf8convert(String text) {
@@ -21,26 +19,43 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Flutter Demo',
+      title: 'Отлов животных',
       theme: ThemeData(
+        scaffoldBackgroundColor: const Color.fromRGBO(230, 230, 230, 1),
           colorScheme: ColorScheme.fromSwatch()
               .copyWith(secondary: const Color.fromRGBO(241, 143, 1, 1))
-              .copyWith(primary: const Color.fromRGBO(87, 134, 12, 1.0))),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+              .copyWith(primary: const Color.fromRGBO(77, 113, 21, 1))
+      ),
+      home: const MyHomePage(),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key, required this.title}) : super(key: key);
-
-  final String title;
+  const MyHomePage({Key? key}) : super(key: key);
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  late TextEditingController loginController;
+  late TextEditingController passwordController;
+
+  @override
+  void initState() {
+    loginController = TextEditingController();
+    passwordController = TextEditingController();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    loginController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -48,28 +63,46 @@ class _MyHomePageState extends State<MyHomePage> {
         title: const Text("Вход"),
       ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            ElevatedButton(
-                onPressed: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const Gallery(role: "guest"))),
-                child: const Text("Без логина")),
-            ElevatedButton(
-                onPressed: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const Gallery(role: "catcher"))),
-                child: const Text("Ловец")),
-            ElevatedButton(
-                onPressed: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const Gallery(role: "org"))),
-                child: const Text("Организатор")),
-          ],
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 35),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              TextField(
+                controller: loginController,
+                decoration: const InputDecoration(label: Text("Email")),
+              ),
+              TextField(
+                decoration: const InputDecoration(label: Text("Password")),
+                controller: passwordController,
+              ),
+              ElevatedButton(
+                  onPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const Gallery(role: "catcher"))),
+                  child: const Text("Вход")),
+              ElevatedButton(
+                  onPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const Gallery(role: "guest"))),
+                  child: const Text("Без логина")),
+              ElevatedButton(
+                  onPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              const Gallery(role: "catcher"))),
+                  child: const Text("Ловец")),
+              ElevatedButton(
+                  onPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const Gallery(role: "org"))),
+                  child: const Text("Организатор")),
+            ],
+          ),
         ),
       ),
     );
