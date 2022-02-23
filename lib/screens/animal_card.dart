@@ -39,6 +39,25 @@ class _AnimalCardState extends State<AnimalCard> {
       releaseDate = "";
   int catchInfo = -1, releaseInfo = -1;
 
+  Widget containerCard(Widget child) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 15),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.5),
+            spreadRadius: 5,
+            blurRadius: 7,
+            offset: const Offset(0, 3), // changes position of shadow
+          ),
+        ],
+      ),
+      child: child,
+    );
+  }
+
   Future getEventData(int id, String varName) async {
     Uri url = Uri.https(
         "projects.masu.edu.ru", "/lyamin/dug/api/event_info/" + id.toString());
@@ -48,262 +67,219 @@ class _AnimalCardState extends State<AnimalCard> {
     } else if (varName == "releaseData") {
       releaseData = json.decode(response.body);
     }
-
-    // return json.decode(response.body);
   }
 
   Widget dataTable() {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 10),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.5),
-            spreadRadius: 5,
-            blurRadius: 7,
-            offset: const Offset(0, 3), // changes position of shadow
+    return DataTable(
+      border: TableBorder(
+        horizontalInside: BorderSide(
+            width: 2, color: Theme.of(context).colorScheme.primary),
+      ),
+      // border: TableBorder.symmetric(
+      //   inside: BorderSide(
+      //       width: 2, color: Theme.of(context).colorScheme.primary),
+      // ),
+      columns: [
+        DataColumn(
+            label: ConstrainedBox(
+          constraints: BoxConstraints(
+            minWidth: MediaQuery.of(context).size.width / 3,
           ),
-        ],
-      ),
-      child: DataTable(
-          // border: TableBorder.symmetric(
-          //   inside: BorderSide(
-          //       width: 2, color: Theme.of(context).colorScheme.primary),
-          // ),
-          columns: [
-            DataColumn(
-                label: ConstrainedBox(
-              constraints: BoxConstraints(
-                minWidth: MediaQuery.of(context).size.width / 3,
-              ),
-              child: const Text(
-                "Тип данных",
-                style: TextStyle(fontStyle: FontStyle.italic),
-              ),
-            )),
-            DataColumn(
-                label: ConstrainedBox(
-              constraints: BoxConstraints(
-                minWidth: MediaQuery.of(context).size.width / 3,
-              ),
-              child: const Text(
-                "Данные",
-                style: TextStyle(fontStyle: FontStyle.italic),
-              ),
-            )),
+          child: const Text(
+            "Тип данных",
+            style: TextStyle(fontStyle: FontStyle.italic),
+          ),
+        )),
+        DataColumn(
+            label: ConstrainedBox(
+          constraints: BoxConstraints(
+            minWidth: MediaQuery.of(context).size.width / 3,
+          ),
+          child: const Text(
+            "Данные",
+            style: TextStyle(fontStyle: FontStyle.italic),
+          ),
+        )),
+      ],
+      rows: [
+        DataRow(
+          cells: <DataCell>[
+            const DataCell(Text('Тип')),
+            DataCell(Text(kind)),
           ],
-          rows: [
-            DataRow(
-              cells: <DataCell>[
-                const DataCell(Text('Тип')),
-                DataCell(Text(kind)),
-              ],
-            ),
-            DataRow(
-              cells: <DataCell>[
-                const DataCell(Text('Пол')),
-                DataCell(Text(sex)),
-              ],
-            ),
-            DataRow(
-              cells: <DataCell>[
-                const DataCell(Text('Номер чипа')),
-                DataCell(Text(chinN)),
-              ],
-            ),
-            DataRow(
-              cells: <DataCell>[
-                const DataCell(Text('Номер бирки')),
-                DataCell(Text(badgeN)),
-              ],
-            ),
-            DataRow(
-              cells: <DataCell>[
-                const DataCell(Text('Информация')),
-                DataCell(Text(info)),
-              ],
-            ),
-            DataRow(
-              cells: <DataCell>[
-                const DataCell(Text('Организация')),
-                DataCell(Text(org)),
-              ],
-            ),
-            DataRow(
-              cells: <DataCell>[
-                const DataCell(Text('Муниципалитет')),
-                DataCell(Text(municipality)),
-              ],
-            ),
-            DataRow(
-              cells: <DataCell>[
-                const DataCell(Text('Статус')),
-                DataCell(Text(status)),
-              ],
-            ),
-            DataRow(
-              cells: <DataCell>[
-                const DataCell(Text('Дата отлова')),
-                DataCell(Text(catchDate)),
-              ],
-            ),
-            DataRow(
-              cells: <DataCell>[
-                const DataCell(Text('Дата выпуска')),
-                DataCell(Text(releaseDate)),
-              ],
-            ),
+        ),
+        DataRow(
+          cells: <DataCell>[
+            const DataCell(Text('Пол')),
+            DataCell(Text(sex)),
           ],
-      ),
+        ),
+        DataRow(
+          cells: <DataCell>[
+            const DataCell(Text('Номер чипа')),
+            DataCell(Text(chinN)),
+          ],
+        ),
+        DataRow(
+          cells: <DataCell>[
+            const DataCell(Text('Номер бирки')),
+            DataCell(Text(badgeN)),
+          ],
+        ),
+        DataRow(
+          cells: <DataCell>[
+            const DataCell(Text('Информация')),
+            DataCell(Text(info)),
+          ],
+        ),
+        DataRow(
+          cells: <DataCell>[
+            const DataCell(Text('Организация')),
+            DataCell(Text(org)),
+          ],
+        ),
+        DataRow(
+          cells: <DataCell>[
+            const DataCell(Text('Муниципалитет')),
+            DataCell(Text(municipality)),
+          ],
+        ),
+        DataRow(
+          cells: <DataCell>[
+            const DataCell(Text('Статус')),
+            DataCell(Text(status)),
+          ],
+        ),
+        DataRow(
+          cells: <DataCell>[
+            const DataCell(Text('Дата отлова')),
+            DataCell(Text(catchDate)),
+          ],
+        ),
+        DataRow(
+          cells: <DataCell>[
+            const DataCell(Text('Дата выпуска')),
+            DataCell(Text(releaseDate)),
+          ],
+        ),
+      ],
     );
   }
 
   Widget catchTable() {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 10),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.5),
-            spreadRadius: 5,
-            blurRadius: 7,
-            offset: const Offset(0, 3), // changes position of shadow
-          ),
+    return DataTable(
+        border: TableBorder(
+          horizontalInside: BorderSide(
+              width: 2, color: Theme.of(context).colorScheme.primary),
+        ),
+        columns: [
+          DataColumn(
+              label: ConstrainedBox(
+            constraints: BoxConstraints(
+              minWidth: MediaQuery.of(context).size.width / 3,
+            ),
+            child: const Text(
+              "Тип данных",
+              style: TextStyle(fontStyle: FontStyle.italic),
+            ),
+          )),
+          DataColumn(
+              label: ConstrainedBox(
+            constraints: BoxConstraints(
+              minWidth: MediaQuery.of(context).size.width / 3,
+            ),
+            child: const Text(
+              "Данные",
+              style: TextStyle(fontStyle: FontStyle.italic),
+            ),
+          )),
         ],
-      ),
-      child: DataTable(
-          border: TableBorder.symmetric(
-            inside: BorderSide(
-                width: 2, color: Theme.of(context).colorScheme.primary),
-          ),
-          columns: [
-            DataColumn(
-                label: ConstrainedBox(
-              constraints: BoxConstraints(
-                minWidth: MediaQuery.of(context).size.width / 3,
-              ),
-              child: const Text(
-                "Тип данных",
-                style: TextStyle(fontStyle: FontStyle.italic),
-              ),
-            )),
-            DataColumn(
-                label: ConstrainedBox(
-              constraints: BoxConstraints(
-                minWidth: MediaQuery.of(context).size.width / 3,
-              ),
-              child: const Text(
-                "Данные",
-                style: TextStyle(fontStyle: FontStyle.italic),
-              ),
-            )),
-          ],
-          rows: catchData != null
-              ? [
-                  DataRow(cells: [
-                    const DataCell(Text("Адрес")),
-                    DataCell(Text(utf8convert(catchData["adress"] ?? "")))
-                  ]),
-                  DataRow(cells: [
-                    const DataCell(Text("Координаты")),
-                    DataCell(Text((catchData["lat"].toString()) +
-                        "\n" +
-                        (catchData["long"].toString())))
-                  ]),
-                  DataRow(cells: [
-                    const DataCell(Text("Данные по заявке")),
-                    DataCell(
-                        Text(utf8convert(catchData['claim_summary'] ?? "")))
-                  ]),
-                  DataRow(cells: [
-                    const DataCell(Text("Данные по рейду")),
-                    DataCell(Text(utf8convert(catchData['raid_summary'] ?? "")))
-                  ]),
-                  DataRow(cells: [
-                    const DataCell(Text("Исполнитель")),
-                    DataCell(Text(utf8convert(catchData['staff_worker'] ?? "")))
-                  ]),
-                ]
-              : []),
-    );
+        rows: catchData != null
+            ? [
+                DataRow(cells: [
+                  const DataCell(Text("Адрес")),
+                  DataCell(Text(utf8convert(catchData["adress"] ?? "")))
+                ]),
+                DataRow(cells: [
+                  const DataCell(Text("Координаты")),
+                  DataCell(Text((catchData["lat"].toString()) +
+                      "\n" +
+                      (catchData["long"].toString())))
+                ]),
+                DataRow(cells: [
+                  const DataCell(Text("Данные по заявке")),
+                  DataCell(
+                      Text(utf8convert(catchData['claim_summary'] ?? "")))
+                ]),
+                DataRow(cells: [
+                  const DataCell(Text("Данные по рейду")),
+                  DataCell(Text(utf8convert(catchData['raid_summary'] ?? "")))
+                ]),
+                DataRow(cells: [
+                  const DataCell(Text("Исполнитель")),
+                  DataCell(Text(utf8convert(catchData['staff_worker'] ?? "")))
+                ]),
+              ]
+            : []);
   }
 
   Widget releaseTable() {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 10),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.5),
-            spreadRadius: 5,
-            blurRadius: 7,
-            offset: const Offset(0, 3), // changes position of shadow
-          ),
+    return DataTable(
+        border: TableBorder(
+          horizontalInside: BorderSide(
+              width: 2, color: Theme.of(context).colorScheme.primary),
+        ),
+        columns: [
+          DataColumn(
+              label: ConstrainedBox(
+            constraints: BoxConstraints(
+              minWidth: MediaQuery.of(context).size.width / 3,
+            ),
+            child: const Text(
+              "Тип данных",
+              style: TextStyle(fontStyle: FontStyle.italic),
+            ),
+          )),
+          DataColumn(
+              label: ConstrainedBox(
+            constraints: BoxConstraints(
+              minWidth: MediaQuery.of(context).size.width / 3,
+            ),
+            child: const Text(
+              "Данные",
+              style: TextStyle(fontStyle: FontStyle.italic),
+            ),
+          )),
         ],
-      ),
-      child: DataTable(
-          border: TableBorder.symmetric(
-            inside: BorderSide(
-                width: 2, color: Theme.of(context).colorScheme.primary),
-          ),
-          columns: [
-            DataColumn(
-                label: ConstrainedBox(
-              constraints: BoxConstraints(
-                minWidth: MediaQuery.of(context).size.width / 3,
-              ),
-              child: const Text(
-                "Тип данных",
-                style: TextStyle(fontStyle: FontStyle.italic),
-              ),
-            )),
-            DataColumn(
-                label: ConstrainedBox(
-              constraints: BoxConstraints(
-                minWidth: MediaQuery.of(context).size.width / 3,
-              ),
-              child: const Text(
-                "Данные",
-                style: TextStyle(fontStyle: FontStyle.italic),
-              ),
-            )),
-          ],
-          rows: releaseData != null
-              ? [
-                  DataRow(cells: [
-                    const DataCell(Text("Адрес")),
-                    DataCell(Text(utf8convert(releaseData["adress"] ?? "")))
-                  ]),
-                  DataRow(cells: [
-                    const DataCell(Text("Координаты")),
-                    DataCell(Text((releaseData["lat"].toString()) +
-                        "\n" +
-                        (releaseData["long"]!.toString())))
-                  ]),
-                  DataRow(cells: [
-                    const DataCell(Text("Данные по заявке")),
-                    DataCell(
-                        Text(utf8convert(releaseData['claim_summary'] ?? "")))
-                  ]),
-                  DataRow(cells: [
-                    const DataCell(Text("Данные по рейду")),
-                    DataCell(
-                        Text(utf8convert(releaseData['raid_summary'] ?? "")))
-                  ]),
-                  DataRow(cells: [
-                    const DataCell(Text("Исполнитель")),
-                    DataCell(
-                        Text(utf8convert(releaseData['staff_worker'] ?? "")))
-                  ]),
-                ]
-              : []),
-    );
+        rows: releaseData != null
+            ? [
+                DataRow(cells: [
+                  const DataCell(Text("Адрес")),
+                  DataCell(Text(utf8convert(releaseData["adress"] ?? "")))
+                ]),
+                DataRow(cells: [
+                  const DataCell(Text("Координаты")),
+                  DataCell(Text((releaseData["lat"].toString()) +
+                      "\n" +
+                      (releaseData["long"]!.toString())))
+                ]),
+                DataRow(cells: [
+                  const DataCell(Text("Данные по заявке")),
+                  DataCell(
+                      Text(utf8convert(releaseData['claim_summary'] ?? "")))
+                ]),
+                DataRow(cells: [
+                  const DataCell(Text("Данные по рейду")),
+                  DataCell(
+                      Text(utf8convert(releaseData['raid_summary'] ?? "")))
+                ]),
+                DataRow(cells: [
+                  const DataCell(Text("Исполнитель")),
+                  DataCell(
+                      Text(utf8convert(releaseData['staff_worker'] ?? "")))
+                ]),
+              ]
+            : []);
   }
 
   @override
@@ -461,7 +437,7 @@ class _AnimalCardState extends State<AnimalCard> {
                             ),
                             textAlign: TextAlign.center),
                       ),
-                      dataTable(),
+                      containerCard(dataTable()),
                       Container(
                         padding: const EdgeInsets.symmetric(vertical: 10),
                         child: const Text("Информация об отлове",
@@ -473,7 +449,7 @@ class _AnimalCardState extends State<AnimalCard> {
                       Visibility(
                         visible: catchData != null,
                         replacement: const Text("Информация отсутсвует"),
-                        child: catchTable(),
+                        child: containerCard(catchTable()),
                       ),
                       Container(
                         padding: const EdgeInsets.symmetric(vertical: 10),
@@ -489,7 +465,7 @@ class _AnimalCardState extends State<AnimalCard> {
                             "Информация отсутсвует",
                             style: TextStyle(fontSize: 20),
                           ),
-                          child: releaseTable()),
+                          child: containerCard(releaseTable())),
                       const SizedBox(height: 20)
                     ],
                   ),
