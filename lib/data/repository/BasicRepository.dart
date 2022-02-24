@@ -6,7 +6,7 @@ import 'dart:convert' as convert;
 abstract class BasicRepository<T>{
 
   static const String siteRoot = "projects.masu.edu.ru";
-  static const String apiRoot = siteRoot + "/lyamin/dug/api/";
+  static const String apiRoot = "/lyamin/dug/api/";
 
   String get apiEndpoint;
 
@@ -16,7 +16,8 @@ abstract class BasicRepository<T>{
   T fromJson(json);
 
   Future<List<T>> getAll([Map<String, String>? queryParams]) async{
-    var response = await http.get(Uri.https(siteRoot, apiPath(), queryParams));
+    var uri = Uri.https(siteRoot, apiPath(), queryParams);
+    var response = await http.get(uri);
     var status = response.statusCode;
     if (status == 200){
       List<T> list = [];
@@ -26,7 +27,7 @@ abstract class BasicRepository<T>{
       }
       return list;
     }
-    throw HttpException("can't access $apiPath() Status: $status");
+    throw HttpException("can't access $uri Status: $status");
   }
 
   Future<T> getById(int id) async{

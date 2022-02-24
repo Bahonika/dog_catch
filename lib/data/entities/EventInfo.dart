@@ -1,4 +1,5 @@
 import 'package:dog_catch/data/entities/Displayable.dart';
+import 'package:dog_catch/utils/Utf8Convert.dart';
 
 class EventInfo extends Displayable{
 
@@ -33,12 +34,12 @@ class EventInfo extends Displayable{
 
   factory EventInfo.fromJson(Map<String, dynamic> json){
     return EventInfo(id: json["id"] as int,
-        adress: json["adress"] as String,
+        adress: utf8convert(json["adress"] as String),
         lat: json["lat"] as num,
         long: json["long"] as num,
-        claimSummary: json["claim_summary"] as String,
-        raidSummary: json["raid_summary"] as String,
-        staffWorker: json["staff_worker"] as String
+        claimSummary: utf8convert(json["claim_summary"] as String),
+        raidSummary: json["raid_summary"] != null ? utf8convert(json["raid_summary"]) : "-",
+        staffWorker: utf8convert(json["staff_worker"] as String)
     );
   }
 

@@ -1,5 +1,6 @@
 import 'package:dog_catch/data/entities/Displayable.dart';
 import 'package:intl/intl.dart';
+import 'package:dog_catch/utils/Utf8Convert.dart';
 
 enum Sex{
   male,
@@ -32,7 +33,7 @@ class AnimalCard extends Displayable{
   String _sexToStrAPI() => sex == Sex.male ? "M" : "F";
   String sexToStr() => sex == Sex.male ? "м" : "ж";
 
-  static Status _statusFromStr(String str) => str == "O" ? Status.catched : Status.released;
+  static Status _statusFromStr(String str) => str == "Отловлено" ? Status.catched : Status.released;
   String statusToStr() => status == Status.catched ? "Отловлено" : "Отпущено";
 
   String badgeToStr() => badgeN ?? "-";
@@ -69,16 +70,16 @@ class AnimalCard extends Displayable{
 
   factory AnimalCard.fromJson(Map<String, dynamic> json){
     return AnimalCard(
-        profileImagePath: json["profile_pic"] as String,
-        imagePaths: json["pictures"] as List<String>,
-        kind: json["kind"] as String,
-        sex: _sexFromStr(json["sex"]),
-        chipN: json["chipN"],
-        badgeN: json["badgeN"],
-        info: json["info"] as String,
-        org: json["org"] as String,
-        municipality: json["municipality"] as String,
-        status: _statusFromStr(json["status"]), 
+        profileImagePath: utf8convert(json["profile_pic"] as String),
+        imagePaths: (json["pictures"] as List<dynamic>).cast<String>(),
+        kind: utf8convert(json["kind"] as String),
+        sex: _sexFromStr(utf8convert(json["sex"])),
+        chipN: json["chipN"] != null ? utf8convert(json["chipN"]) : null,
+        badgeN: json["badgeN"] != null ? utf8convert(json["badgeN"]) : null,
+        info: utf8convert(json["info"] as String),
+        org: utf8convert(json["org"] as String),
+        municipality: utf8convert(json["municipality"] as String),
+        status: _statusFromStr(utf8convert(json["status"])),
         catchDate: DateTime.parse(json["catch_date"]),
         releaseDate: json["release_date"] != null ?
                         DateTime.parse(json["catch_date"]) : null,
@@ -103,7 +104,7 @@ class AnimalCard extends Displayable{
       AnimalCard.orgAlias: org,
       AnimalCard.municipalityAlias: municipality,
       AnimalCard.statusAlias: statusToStr(),
-      AnimalCard.catchDateAlias: DateFormat("d.m.Y").format(catchDate),
+      AnimalCard.catchDateAlias: DateFormat("dd.MM.yyyy").format(catchDate),
       AnimalCard.releaseDateAlias: releaseDate != null ?
                           DateFormat("d.m.Y").format(catchDate) : "-"
 

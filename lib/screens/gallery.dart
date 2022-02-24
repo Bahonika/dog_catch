@@ -1,10 +1,9 @@
-import 'dart:convert';
-
-import 'package:dog_catch/screens/animal_card.dart';
-import 'package:dog_catch/screens/login.dart';
+import 'package:dog_catch/data/repository/AnimalCardRepository.dart';
+import 'package:dog_catch/data/repository/BasicRepository.dart';
+import 'package:dog_catch/screens/animal_card_view.dart';
 import 'package:dog_catch/screens/statistics.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+import 'package:dog_catch/data/entities/AnimalCard.dart';
 
 class Gallery extends StatefulWidget {
   const Gallery({Key? key, required this.role}) : super(key: key);
@@ -17,6 +16,15 @@ class Gallery extends StatefulWidget {
 class _GalleryState extends State<Gallery> {
   void cardAdd() {
     showFilterSettings(context);
+  }
+
+  // TODO:
+  Color getParamColor(String kindId){
+    if(queryParams.containsKey("kind_id") &&
+        queryParams["kind_id"] == kindId){
+      return Theme.of(context).colorScheme.secondary;
+    }
+    return Theme.of(context).colorScheme.primary;
   }
 
   void showFilterSettings(BuildContext context) {
@@ -57,41 +65,55 @@ class _GalleryState extends State<Gallery> {
                     children: [
                       ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                              primary: showOnlyDog
-                                  ? Theme.of(context).colorScheme.secondary
-                                  : Theme.of(context).colorScheme.primary),
-                          onPressed: () => setState(() {
-                                showOnlyDog = !showOnlyDog;
-                              }),
-                          child: Text("Собаки")),
+                              primary: getParamColor("1")),
+                              onPressed: () => setState(() {
+                                    queryParams["kind_id"] = "1";
+                               }),
+                          child: const Text("Собаки")),
                       ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                              primary: showOnlyCats
-                                  ? Theme.of(context).colorScheme.secondary
-                                  : Theme.of(context).colorScheme.primary),
-                          onPressed: () => setState(() {
-                                showOnlyCats = !showOnlyCats;
+                              primary: getParamColor("2")),
+                              onPressed: () => setState(() {
+                                queryParams["kind_id"] = "2";
                               }),
-                          child: Text("Кошки")),
-                      ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                              primary: showOnlyOther
-                                  ? Theme.of(context).colorScheme.secondary
-                                  : Theme.of(context).colorScheme.primary),
-                          onPressed: () => setState(() {
-                                showOnlyOther = !showOnlyOther;
-                              }),
-                          child: Text("Другие")),
+                          child: const Text("Кошки")),
+                      // ElevatedButton(
+                      //     style: ElevatedButton.styleFrom(
+                      //         primary: showOnlyOther
+                      //             ? Theme.of(context).colorScheme.secondary
+                      //             : Theme.of(context).colorScheme.primary),
+                      //     onPressed: () => setState(() {
+                      //           showOnlyOther = !showOnlyOther;
+                      //         }),
+                      //     child: Text("Другие")),
                     ],
                   ),
-                  ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                          primary: Theme.of(context).colorScheme.primary),
-                      onPressed: () => setState(() {
-                            Navigator.pop(context);
-                            getData();
-                          }),
-                      child: Text("Сортировать")),
+                  Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                     children: [
+                       ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                              primary: Theme.of(context).colorScheme.primary),
+                          onPressed: () => setState(() {
+                                Navigator.pop(context);
+                                getData();
+                              }),
+                          child: const Text("Сортировать")
+                       ),
+                       ElevatedButton(
+                           style: ElevatedButton.styleFrom(
+                               primary: Theme.of(context).colorScheme.primary),
+                           onPressed: () => setState(() {
+                             if(queryParams.containsKey("kind_id")){
+                               queryParams.remove("kind_id");
+                             }
+                             Navigator.pop(context);
+                             getData();
+                           }),
+                           child: const Text("Сбросить фильтр")
+                       ),
+                     ]
+                  ),
                 ],
               ),
             ),
@@ -101,32 +123,15 @@ class _GalleryState extends State<Gallery> {
     );
   }
 
-  static bool showOnlyDog = false, showOnlyCats = false, showOnlyOther = false;
-  bool isSortVisible = false;
 
-  var jsonData;
-
-  String urlCreate() {
-    String url = "https://projects.masu.edu.ru/lyamin/dug/api/animal_card";
-    print(url.length);
-    if (showOnlyDog) {
-      url += "?kind_id=1";
-    }
-    if (showOnlyCats) {
-      url.length == 55 ? url += "?kind_id=2" : url += "/kind_id=2";
-    }
-    if (showOnlyOther) {
-      url.length == 55 ? url += "?kind_id=2" : url += "&?kind_id=2";
-    }
-    print(url);
-    return url;
-  }
+  var animalCardList;
+  final Map<String, String> queryParams = {};
+  var repository = AnimalCardRepository();
 
   Future<void> getData() async {
-    Uri uri = Uri.parse(urlCreate());
-    var response = await http.get(uri);
+    var list = await repository.getAll(queryParams);
     setState(() {
-      jsonData = json.decode(response.body);
+      animalCardList = list;
     });
   }
 
@@ -136,16 +141,32 @@ class _GalleryState extends State<Gallery> {
     super.initState();
   }
 
+  Color getColorForStatus(Status status) => status == Status.released ?
+                                      Theme.of(context).colorScheme.primary :
+                                      Theme.of(context).colorScheme.secondary;
+
+  Decoration createStatusDecoration(AnimalCard animalCard){
+    return BoxDecoration(
+            color: getColorForStatus(animalCard.status),
+            border: Border(
+              bottom: BorderSide(
+                width: 10,
+                color: getColorForStatus(animalCard.status),
+              ),
+            ),
+        );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Список животных"),
         actions: [
-          IconButton(onPressed: cardAdd, icon: Icon(Icons.filter_alt_rounded))
+          IconButton(onPressed: cardAdd, icon: const Icon(Icons.filter_alt_rounded))
         ],
       ),
-      body: jsonData != null
+      body: animalCardList != null
           ? Stack(children: [
               GridView.count(
                   crossAxisCount: 2,
@@ -153,37 +174,21 @@ class _GalleryState extends State<Gallery> {
                       EdgeInsets.all(MediaQuery.of(context).size.width * 0.05),
                   crossAxisSpacing: MediaQuery.of(context).size.width * 0.05,
                   mainAxisSpacing: MediaQuery.of(context).size.width * 0.05,
-                  children: List.generate(jsonData?.length ?? 0, (index) {
+                  children: List.generate(animalCardList?.length ?? 0, (index) {
                     return Hero(
                       tag: index,
                       child: GestureDetector(
                         onTap: () => Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => AnimalCard(
-                                    index: index, data: jsonData[index]))),
+                                builder: (context) => AnimalCardView(
+                                    index: index, data: animalCardList[index]))),
                         child: ClipRRect(
                           borderRadius: const BorderRadius.only(
                               topLeft: Radius.circular(25),
                               topRight: Radius.circular(25)),
                           child: Container(
-                            decoration: BoxDecoration(
-                              color: utf8convert(jsonData[index]['status']) ==
-                                      "Выпущено"
-                                  ? Theme.of(context).colorScheme.primary
-                                  : Theme.of(context).colorScheme.secondary,
-                              border: Border(
-                                bottom: BorderSide(
-                                    width: 10,
-                                    color: utf8convert(
-                                                jsonData[index]['status']) ==
-                                            "Выпущено"
-                                        ? Theme.of(context).colorScheme.primary
-                                        : Theme.of(context)
-                                            .colorScheme
-                                            .secondary),
-                              ),
-                            ),
+                            decoration: createStatusDecoration(animalCardList[index]),
                             height: MediaQuery.of(context).size.width * 0.41,
                             width: MediaQuery.of(context).size.width * 0.41,
                             child: ClipRRect(
@@ -191,8 +196,7 @@ class _GalleryState extends State<Gallery> {
                                 bottomRight: Radius.circular(25),
                               ),
                               child: Image.network(
-                                "https://projects.masu.edu.ru/" +
-                                    jsonData[index]["profile_pic"],
+                               "https://"+ BasicRepository.siteRoot + animalCardList[index].profileImagePath,
                                 fit: BoxFit.cover,
                               ),
                             ),
