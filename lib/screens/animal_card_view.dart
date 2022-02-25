@@ -5,7 +5,7 @@ import 'package:dog_catch/data/repository/EventInfoRepository.dart';
 import 'package:dog_catch/utils/CustomCard.dart';
 import 'package:flutter/material.dart';
 
-import '../data/repository/BasicRepository.dart';
+import '../data/repository/Api.dart';
 
 class AnimalCardView extends StatefulWidget {
   const AnimalCardView({Key? key, required this.index, required this.data})
@@ -157,7 +157,7 @@ class _AnimalCardViewState extends State<AnimalCardView> {
                 Center(
                   child: Center(
                       child: Image.network(
-                        "https://"+ BasicRepository.siteRoot + animalCard.profileImagePath,
+                        "https://"+ Api.siteRoot + animalCard.profileImagePath,
                     fit: BoxFit.fitHeight,
                     height: MediaQuery.of(context).size.height,
                   )),
@@ -179,7 +179,7 @@ class _AnimalCardViewState extends State<AnimalCardView> {
                                   return Container(
                                     margin: const EdgeInsets.all(20),
                                     child: Image.network(
-                                        "https://" + BasicRepository.siteRoot +
+                                        "https://" + Api.siteRoot +
                                             animalCard.imagePaths[index]),
                                   );
                                 },

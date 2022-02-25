@@ -1,14 +1,17 @@
 import 'package:dog_catch/data/repository/AnimalCardRepository.dart';
-import 'package:dog_catch/data/repository/BasicRepository.dart';
 import 'package:dog_catch/screens/animal_card_view.dart';
 import 'package:dog_catch/screens/statistics.dart';
 import 'package:flutter/material.dart';
 import 'package:dog_catch/data/entities/AnimalCard.dart';
 
-class Gallery extends StatefulWidget {
-  const Gallery({Key? key, required this.role}) : super(key: key);
+import '../data/entities/User.dart';
+import '../data/repository/Api.dart';
 
-  final String role;
+class Gallery extends StatefulWidget {
+  const Gallery({Key? key, required this.user}) : super(key: key);
+
+  final User user;
+
   @override
   _GalleryState createState() => _GalleryState();
 }
@@ -196,7 +199,7 @@ class _GalleryState extends State<Gallery> {
                                 bottomRight: Radius.circular(25),
                               ),
                               child: Image.network(
-                               "https://"+ BasicRepository.siteRoot + animalCardList[index].profileImagePath,
+                               "https://"+ Api.siteRoot + animalCardList[index].profileImagePath,
                                 fit: BoxFit.cover,
                               ),
                             ),
@@ -241,14 +244,14 @@ class _GalleryState extends State<Gallery> {
                 style: TextStyle(fontSize: 30),
               ),
             ),
-      floatingActionButton: widget.role == "org"
+      floatingActionButton: widget.user.role == User.comitee
           ? FloatingActionButton(
               onPressed: () => Navigator.push(context,
                   MaterialPageRoute(builder: (context) => const Statistics())),
               backgroundColor: Theme.of(context).colorScheme.primary,
               child: const Icon(Icons.stacked_line_chart),
             )
-          : widget.role == "catcher"
+          : widget.user.role == User.catcher
               ? Column(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [

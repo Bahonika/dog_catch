@@ -1,22 +1,17 @@
 import 'dart:io';
 
+import 'package:dog_catch/data/repository/Api.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert' as convert;
 
-abstract class BasicRepository<T>{
+abstract class BasicRepository<T> extends Api{
 
-  static const String siteRoot = "projects.masu.edu.ru";
-  static const String apiRoot = "/lyamin/dug/api/";
-
-  String get apiEndpoint;
-
-  String apiPath() => apiRoot+apiEndpoint;
-  Uri apiIdPath(int id) => Uri.https(siteRoot, apiRoot+apiEndpoint+"/$id");
+  Uri apiIdPath(int id) => Uri.https(Api.siteRoot, Api.apiRoot+apiEndpoint+"/$id");
 
   T fromJson(json);
 
   Future<List<T>> getAll([Map<String, String>? queryParams]) async{
-    var uri = Uri.https(siteRoot, apiPath(), queryParams);
+    var uri = Uri.https(Api.siteRoot, apiPath(), queryParams);
     var response = await http.get(uri);
     var status = response.statusCode;
     if (status == 200){
