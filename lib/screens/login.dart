@@ -1,51 +1,23 @@
-import 'dart:convert';
-
 import 'package:dog_catch/data/entities/User.dart';
 import 'package:dog_catch/data/repository/AuthUser.dart';
 import 'package:dog_catch/screens/gallery.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-void main() {
-  runApp(const MyApp());
-}
-
-String utf8convert(String text) {
-  List<int> bytes = text.toString().codeUnits;
-  return utf8.decode(bytes);
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+class LoginPage extends StatefulWidget {
+  const LoginPage({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Отлов животных',
-      theme: ThemeData(
-        scaffoldBackgroundColor: const Color.fromRGBO(230, 230, 230, 1),
-          colorScheme: ColorScheme.fromSwatch()
-              .copyWith(secondary: const Color.fromRGBO(241, 143, 1, 1))
-              .copyWith(primary: const Color.fromRGBO(77, 113, 21, 1))
-      ),
-      home: const MyHomePage(),
-    );
-  }
+  State<LoginPage> createState() => _LoginPageState();
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key}) : super(key: key);
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
+class _LoginPageState extends State<LoginPage> {
   late TextEditingController loginController;
   late TextEditingController passwordController;
 
   User user = GuestUser();
   var authUser = AuthUser();
+  bool isAuthFailed = false;
 
   @override
   void initState() {
@@ -65,13 +37,17 @@ class _MyHomePageState extends State<MyHomePage> {
     try{
       user = await authUser.auth(loginController.value.text,
                             passwordController.value.text);
+      var prefs = await SharedPreferences.getInstance();
+      user.save(prefs);
       Navigator.push(context,
           MaterialPageRoute(
               builder: (context) => Gallery(user: user)));
 
     }
     on AuthorizationException catch(e){
-      print(e);
+      setState(() {
+        isAuthFailed = true;
+      });
     }
   }
 
@@ -87,6 +63,8 @@ class _MyHomePageState extends State<MyHomePage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              if(isAuthFailed)
+                const Text("Неверные данные пользователя"),
               TextField(
                 controller: loginController,
                 decoration: const InputDecoration(label: Text("Email")),
@@ -95,15 +73,20 @@ class _MyHomePageState extends State<MyHomePage> {
                 decoration: const InputDecoration(label: Text("Password")),
                 controller: passwordController,
               ),
-              ElevatedButton(
-                  onPressed: login,
-                  child: const Text("Вход")),
-              ElevatedButton(
-                  onPressed: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => Gallery(user: GuestUser()))),
-                  child: const Text("Без логина")),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  ElevatedButton(
+                    onPressed: login,
+                    child: const Text("Вход")),
+                  ElevatedButton(
+                      onPressed: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => Gallery(user: GuestUser()))),
+                      child: const Text("Войти как гость")),
+                ]
+              ),
               ElevatedButton(
                   onPressed: () => Navigator.push(
                       context,

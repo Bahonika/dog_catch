@@ -3,20 +3,79 @@ import 'package:dog_catch/screens/animal_card_view.dart';
 import 'package:dog_catch/screens/statistics.dart';
 import 'package:flutter/material.dart';
 import 'package:dog_catch/data/entities/AnimalCard.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../data/entities/User.dart';
 import '../data/repository/Api.dart';
+import 'login.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Отлов животных',
+      theme: ThemeData(
+          scaffoldBackgroundColor: const Color.fromRGBO(230, 230, 230, 1),
+          colorScheme: ColorScheme.fromSwatch()
+              .copyWith(secondary: const Color.fromRGBO(241, 143, 1, 1))
+              .copyWith(primary: const Color.fromRGBO(77, 113, 21, 1))
+      ),
+      home: const Gallery(),
+    );
+  }
+}
 
 class Gallery extends StatefulWidget {
-  const Gallery({Key? key, required this.user}) : super(key: key);
+  const Gallery({Key? key, this.user}) : super(key: key);
 
-  final User user;
+  final User? user;
 
   @override
   _GalleryState createState() => _GalleryState();
 }
 
 class _GalleryState extends State<Gallery> {
+
+  var animalCardList;
+  User user = GuestUser();
+  final Map<String, String> queryParams = {};
+  var repository = AnimalCardRepository();
+
+  Future<void> getData() async {
+    var list = await repository.getAll(queryParams);
+    var sharedPrefs = await SharedPreferences.getInstance();
+    var userD = widget.user ?? await restoreFromSharedPrefs(sharedPrefs);
+    setState(() {
+      animalCardList = list;
+      user = userD;
+    });
+  }
+
+  void logout() async{
+    var sharedPrefs = await SharedPreferences.getInstance();
+    user.clear(sharedPrefs);
+    setState(() {
+      user = GuestUser();
+    });
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => const LoginPage()));
+  }
+
+  @override
+  void initState() {
+    getData();
+    super.initState();
+  }
+
   void cardAdd() {
     showFilterSettings(context);
   }
@@ -127,23 +186,6 @@ class _GalleryState extends State<Gallery> {
   }
 
 
-  var animalCardList;
-  final Map<String, String> queryParams = {};
-  var repository = AnimalCardRepository();
-
-  Future<void> getData() async {
-    var list = await repository.getAll(queryParams);
-    setState(() {
-      animalCardList = list;
-    });
-  }
-
-  @override
-  void initState() {
-    getData();
-    super.initState();
-  }
-
   Color getColorForStatus(Status status) => status == Status.released ?
                                       Theme.of(context).colorScheme.primary :
                                       Theme.of(context).colorScheme.secondary;
@@ -164,14 +206,19 @@ class _GalleryState extends State<Gallery> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Список животных"),
+        title: const Text("Отлов животных"),
         actions: [
-          IconButton(onPressed: cardAdd, icon: const Icon(Icons.filter_alt_rounded))
+          IconButton(onPressed: cardAdd, icon: const Icon(Icons.filter_alt_rounded)),
+          IconButton(onPressed: logout, icon: const Icon(Icons.logout))
         ],
       ),
-      body: animalCardList != null
-          ? Stack(children: [
-              GridView.count(
+      body: Column(
+
+          children: [
+            Text("Вы вошли как $user"),
+            animalCardList != null
+          ?
+              Expanded(child: GridView.count(
                   crossAxisCount: 2,
                   padding:
                       EdgeInsets.all(MediaQuery.of(context).size.width * 0.05),
@@ -207,7 +254,9 @@ class _GalleryState extends State<Gallery> {
                         ),
                       ),
                     );
-                  })),
+                  }),
+              )
+              )
               // Visibility(
               //     visible: isSortVisible,
               //     maintainAnimation: false,
@@ -237,21 +286,22 @@ class _GalleryState extends State<Gallery> {
               //         ],
               //       ),
               //     ))
-            ])
           : const Center(
               child: Text(
                 "Загрузка",
                 style: TextStyle(fontSize: 30),
               ),
-            ),
-      floatingActionButton: widget.user.role == User.comitee
+            )
+      ])
+      ,
+      floatingActionButton: user.role == User.comitee
           ? FloatingActionButton(
               onPressed: () => Navigator.push(context,
                   MaterialPageRoute(builder: (context) => const Statistics())),
               backgroundColor: Theme.of(context).colorScheme.primary,
               child: const Icon(Icons.stacked_line_chart),
             )
-          : widget.user.role == User.catcher
+          : user.role == User.catcher
               ? Column(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [

@@ -32,7 +32,7 @@ class User {
 }
 
 class GuestUser extends User{
-  GuestUser() : super(role: User.guest);
+   GuestUser() : super(role: User.guest);
 }
 
 class AuthorizedUser extends User{
@@ -53,11 +53,6 @@ class AuthorizedUser extends User{
 
   String getAuthHeader(){
     return "Authorization: Token $token";
-  }
-
-  @override
-  String toString() {
-    return "$surname $name";
   }
 
   factory AuthorizedUser.fromJson(Map<String, dynamic> json){
@@ -89,5 +84,28 @@ class AuthorizedUser extends User{
     await prefs.setString('email', email);
     await prefs.setInt('id', id);
   }
+
+}
+
+Future<User> restoreFromSharedPrefs(SharedPreferences prefs) async{
+  var role = prefs.get('role') as String?;
+
+  if(role == null || role == User.guest){
+    return GuestUser();
+  }
+
+  var token = prefs.get('token') as String?;
+  var name = prefs.get('name') as String?;
+  var surname = prefs.get('surname') as String?;
+  var email = prefs.get('email') as String?;
+  var id = prefs.get('id') as int?;
+
+  return AuthorizedUser(role: role,
+                        id: id!,
+                        email: email!,
+                        name: name!,
+                        surname: surname!,
+                        token: token!);
+
 
 }
