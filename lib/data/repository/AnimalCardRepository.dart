@@ -10,5 +10,4 @@ class AnimalCardRepository extends BasicRepository<AnimalCard>{
   AnimalCard fromJson(json) {
     return AnimalCard.fromJson(json);
   }
-
 }

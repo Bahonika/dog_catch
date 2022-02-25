@@ -21,12 +21,14 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Отлов животных',
       theme: ThemeData(
-        scaffoldBackgroundColor: const Color.fromRGBO(230, 230, 230, 1),
+          scaffoldBackgroundColor: const Color.fromRGBO(230, 230, 230, 1),
           colorScheme: ColorScheme.fromSwatch()
-              .copyWith(secondary: const Color.fromRGBO(241, 143, 1, 1))
-              .copyWith(primary: const Color.fromRGBO(77, 113, 21, 1))
-      ),
+              // .copyWith(secondary: const Color.fromRGBO(241, 143, 1, 1))
+              // .copyWith(primary: const Color.fromRGBO(77, 113, 21, 1))
+              .copyWith(primary: const Color.fromRGBO(86, 68, 93, 1))
+              .copyWith(secondary: const Color.fromRGBO(209, 185, 29, 1))),
       home: const MyHomePage(),
+      // home: isLogin ? Gallery(role: "role",) : MyHomePage(),
     );
   }
 }
@@ -80,7 +82,9 @@ class _MyHomePageState extends State<MyHomePage> {
                   onPressed: () => Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => const Gallery(role: "catcher"))),
+                          builder: (context) => WillPopScope(
+                              onWillPop: () async => false,
+                              child: const Gallery(role: "catcher")))),
                   child: const Text("Вход")),
               ElevatedButton(
                   onPressed: () => Navigator.push(

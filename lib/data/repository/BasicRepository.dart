@@ -11,7 +11,7 @@ abstract class BasicRepository<T>{
   String get apiEndpoint;
 
   String apiPath() => apiRoot+apiEndpoint;
-  Uri apiIdPath(int id) => Uri.https(siteRoot, apiRoot+apiEndpoint+"/$id");
+  Uri apiIdPath(int id) => Uri.https(siteRoot, apiRoot+apiEndpoint + "/$id");
 
   T fromJson(json);
 
