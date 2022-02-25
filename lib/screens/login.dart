@@ -4,6 +4,29 @@ import 'package:dog_catch/screens/gallery.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Отлов животных',
+      theme: ThemeData(
+          scaffoldBackgroundColor: const Color.fromRGBO(230, 230, 230, 1),
+          colorScheme: ColorScheme.fromSwatch()
+              .copyWith(primary: const Color.fromRGBO(88, 60, 93, 1))
+              .copyWith(secondary: const Color.fromRGBO(209, 185, 29, 1))
+      ),
+      home: const LoginPage(),
+    );
+  }
+}
+
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
 
