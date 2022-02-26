@@ -1,8 +1,10 @@
 import 'dart:io';
 
-import 'package:dog_catch/data/repository/Api.dart';
+import 'package:dog_catch/data/repository/abstract/Api.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert' as convert;
+
+import '../../entities/User.dart';
 
 abstract class BasicRepository<T> extends Api{
 
@@ -10,9 +12,10 @@ abstract class BasicRepository<T> extends Api{
 
   T fromJson(json);
 
-  Future<List<T>> getAll([Map<String, String>? queryParams]) async{
+  Future<List<T>> getAll([Map<String, String>? queryParams, AuthorizedUser? user]) async{
     var uri = Uri.https(Api.siteRoot, apiPath(), queryParams);
-    var response = await http.get(uri);
+    var response = user == null ? await http.get(uri) :
+                                  await http.get(uri, headers: {'Authorization': user.getToken()});
     var status = response.statusCode;
     if (status == 200){
       List<T> list = [];
@@ -25,8 +28,9 @@ abstract class BasicRepository<T> extends Api{
     throw HttpException("can't access $uri Status: $status");
   }
 
-  Future<T> getById(int id) async{
-    var response = await http.get(apiIdPath(id));
+  Future<T> getById(int id, [AuthorizedUser? user]) async{
+    var response = user == null ? await http.get(apiIdPath(id)) :
+                                  await http.get(apiIdPath(id), headers: {'Authorization': user.getToken()});
     var status = response.statusCode;
     if (status == 200){
       return fromJson(convert.jsonDecode(response.body));

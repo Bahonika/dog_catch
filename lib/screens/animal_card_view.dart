@@ -1,11 +1,11 @@
 import 'package:dog_catch/data/entities/AnimalCard.dart';
-import 'package:dog_catch/data/entities/Displayable.dart';
 import 'package:dog_catch/data/entities/EventInfo.dart';
 import 'package:dog_catch/data/repository/EventInfoRepository.dart';
 import 'package:dog_catch/utils/CustomCard.dart';
 import 'package:flutter/material.dart';
 
-import '../data/repository/Api.dart';
+import '../data/entities/abstract/Displayable.dart';
+import '../data/repository/abstract/Api.dart';
 
 class AnimalCardView extends StatefulWidget {
   const AnimalCardView({Key? key, required this.index, required this.data})

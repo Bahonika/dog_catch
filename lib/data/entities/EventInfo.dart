@@ -1,7 +1,7 @@
-import 'package:dog_catch/data/entities/Displayable.dart';
+import 'package:dog_catch/data/entities/abstract/Displayable.dart';
 import 'package:dog_catch/utils/Utf8Convert.dart';
 
-class EventInfo extends Displayable{
+class EventInfo implements Displayable{
 
   final int id;
   final String adress;

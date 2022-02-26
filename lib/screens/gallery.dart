@@ -6,8 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:dog_catch/data/entities/AnimalCard.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../data/entities/Status.dart';
 import '../data/entities/User.dart';
-import '../data/repository/Api.dart';
+import '../data/repository/abstract/Api.dart';
 
 class Gallery extends StatefulWidget {
   const Gallery({Key? key, this.user}) : super(key: key);
