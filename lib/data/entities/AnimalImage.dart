@@ -1,13 +1,21 @@
-import 'package:image_picker/image_picker.dart';
+import 'dart:io';
+import 'package:dog_catch/data/entities/abstract/PostableMultipart.dart';
 
-class AnimalImage{
-  final XFile img;
+
+class AnimalImage implements PostableMultipart{
+  final File img;
 
   AnimalImage(this.img);
 
-  Map<String, dynamic> toJson(){
+  @override
+  Map<String, File> getFiles() {
     return {
-      'img': img.readAsBytes()
+      'img': img
     };
+  }
+
+  @override
+  Map<String, dynamic> toJson() {
+    return {};
   }
 }

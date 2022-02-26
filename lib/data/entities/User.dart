@@ -51,10 +51,6 @@ class AuthorizedUser extends User{
                   required this.token}) :
         super(role: role);
 
-  String getToken(){
-    return "Token $token";
-  }
-
   factory AuthorizedUser.fromJson(Map<String, dynamic> json){
       return AuthorizedUser(
           role: utf8convert(json["group"]),
