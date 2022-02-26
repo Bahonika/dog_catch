@@ -1,6 +1,7 @@
 import 'package:dog_catch/data/repository/AnimalCardRepository.dart';
 import 'package:dog_catch/screens/animal_card_add.dart';
 import 'package:dog_catch/screens/animal_card_view.dart';
+import 'package:dog_catch/screens/login.dart';
 import 'package:dog_catch/screens/statistics.dart';
 import 'package:flutter/material.dart';
 import 'package:dog_catch/data/entities/AnimalCard.dart';
@@ -18,20 +19,19 @@ class Gallery extends StatefulWidget {
   _GalleryState createState() => _GalleryState();
 }
 
-class _GalleryState extends State<Gallery> {
+class _GalleryState extends State<Gallery> with SingleTickerProviderStateMixin{
+
+  late AnimationController animation;
   var animalCardList;
+
   User user = GuestUser();
   final Map<String, String> queryParams = {};
   var repository = AnimalCardRepository();
 
   Future<void> getData() async {
     var list = await repository.getAll(queryParams);
-    print("1");
     var sharedPrefs = await SharedPreferences.getInstance();
-    print("2");
-
     var userD = widget.user ?? await restoreFromSharedPrefs(sharedPrefs);
-    print("3");
 
     setState(() {
       animalCardList = list;
@@ -40,33 +40,40 @@ class _GalleryState extends State<Gallery> {
   }
 
   void logout() async {
-    var sharedPrefs = await SharedPreferences.getInstance();
-    user.clear(sharedPrefs);
-    setState(() {
-      user = GuestUser();
-    });
-    Navigator.pop(context);
+    var prefs = await SharedPreferences.getInstance();
+    user.clear(prefs);
+    if (Navigator.canPop(context)) {
+      Navigator.pop(context);
+    } else {
+      Navigator.pushReplacement(
+          context, MaterialPageRoute(builder: (context) => const LoginPage()));
+    }
   }
 
   @override
   void initState() {
+    animation = AnimationController(
+      duration: const Duration(milliseconds: 5000),
+      vsync: this,
+    );
     getData();
     super.initState();
   }
 
-  void cardAdd() {
+  void showFilter() {
+    animation.dispose();
     showFilterSettings(context);
   }
 
-  // TODO:
-  Color getParamColor(String kindId) {
-    if (queryParams.containsKey("kind_id") &&
-        queryParams["kind_id"] == kindId) {
+  getParamColor(bool isActive) {
+    if (isActive) {
       return Theme.of(context).colorScheme.secondary;
+    } else {
+      return Theme.of(context).colorScheme.primary;
     }
-    return Theme.of(context).colorScheme.primary;
   }
 
+  // shows dialog with filter settings
   void showFilterSettings(BuildContext context) {
     showDialog(
       context: context,
@@ -87,12 +94,12 @@ class _GalleryState extends State<Gallery> {
                     color: Colors.grey.withOpacity(0.5),
                     spreadRadius: 5,
                     blurRadius: 7,
-                    offset: const Offset(0, 3), // changes position of shadow
+                    offset: const Offset(0, 3),
                   ),
                 ],
               ),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
                     "Кого показывать",
@@ -100,48 +107,113 @@ class _GalleryState extends State<Gallery> {
                         fontSize: 20,
                         color: Theme.of(context).colorScheme.primary),
                   ),
+
+                  // kind filter
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                              primary: getParamColor("1")),
+                              primary:
+                                  getParamColor(queryParams["kind_id"] == "1")),
                           onPressed: () => setState(() {
-                                queryParams["kind_id"] = "1";
+                                queryParams["kind_id"] == "1"
+                                    ? queryParams.remove("kind_id")
+                                    : queryParams["kind_id"] = "1";
                               }),
                           child: const Text("Собаки")),
                       ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                              primary: getParamColor("2")),
+                              primary:
+                                  getParamColor(queryParams["kind_id"] == "2")),
                           onPressed: () => setState(() {
-                                queryParams["kind_id"] = "2";
+                                queryParams["kind_id"] == "2"
+                                    ? queryParams.remove("kind_id")
+                                    : queryParams["kind_id"] = "2";
                               }),
                           child: const Text("Кошки")),
                     ],
                   ),
+
+                  // sex filter
                   Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                                primary: Theme.of(context).colorScheme.primary),
-                            onPressed: () => setState(() {
-                                  Navigator.pop(context);
-                                  getData();
-                                }),
-                            child: const Text("Сортировать")),
-                        ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                                primary: Theme.of(context).colorScheme.primary),
-                            onPressed: () => setState(() {
-                                  if (queryParams.containsKey("kind_id")) {
-                                    queryParams.remove("kind_id");
-                                  }
-                                  Navigator.pop(context);
-                                  getData();
-                                }),
-                            child: const Text("Сбросить фильтр")),
-                      ]),
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                              primary:
+                                  getParamColor(queryParams["sex"] == "M")),
+                          onPressed: () => setState(() {
+                                queryParams["sex"] == "M"
+                                    ? queryParams.remove("sex")
+                                    : queryParams["sex"] = "M";
+                              }),
+                          child: const Text("Мужской")),
+                      ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                              primary:
+                                  getParamColor(queryParams["sex"] == "F")),
+                          onPressed: () => setState(() {
+                                queryParams["sex"] == "F"
+                                    ? queryParams.remove("sex")
+                                    : queryParams["sex"] = "F";
+                              }),
+                          child: const Text("Женский")),
+                    ],
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                              primary:
+                                  getParamColor(queryParams["status"] == "V")),
+                          onPressed: () => setState(() {
+                                queryParams["status"] == "V"
+                                    ? queryParams.remove("status")
+                                    : queryParams["status"] = "V";
+                              }),
+                          child: const Text("Выпущены")),
+                      ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                              primary:
+                                  getParamColor(queryParams["status"] == "O")),
+                          onPressed: () => setState(() {
+                                queryParams["status"] == "O"
+                                    ? queryParams.remove("status")
+                                    : queryParams["status"] = "O";
+                              }),
+                          child: const Text("Отловлены")),
+                    ],
+                  ),
+                  Container(
+                    margin: const EdgeInsets.only(top: 25),
+                    child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                  primary:
+                                      Theme.of(context).colorScheme.primary),
+                              onPressed: () => setState(() {
+                                    Navigator.pop(context);
+                                    getData();
+                                  }),
+                              child: const Text("Сортировать")),
+                          ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                  primary:
+                                      Theme.of(context).colorScheme.primary),
+                              onPressed: () => setState(() {
+                                    if (queryParams.isNotEmpty) {
+                                      queryParams.clear();
+                                    }
+                                    Navigator.pop(context);
+                                    getData();
+                                  }),
+                              child: const Text("Сбросить фильтр")),
+                        ]),
+                  ),
                 ],
               ),
             ),
@@ -175,10 +247,15 @@ class _GalleryState extends State<Gallery> {
         leading: IconButton(
             onPressed: logout,
             icon: const RotatedBox(
-                quarterTurns: 90, child: Icon(Icons.exit_to_app_rounded))),
+                quarterTurns: 90,
+                child: Icon(
+                  Icons.exit_to_app_rounded,
+                  color: Colors.redAccent,
+                ))),
         actions: [
           IconButton(
-              onPressed: cardAdd, icon: const Icon(Icons.filter_alt_rounded)),
+              onPressed: showFilter,
+              icon: const Icon(Icons.filter_alt_rounded)),
         ],
       ),
       body: Column(children: [
@@ -202,7 +279,7 @@ class _GalleryState extends State<Gallery> {
                                   index: index, data: animalCardList[index]))),
                       child: ClipRRect(
                         borderRadius: const BorderRadius.only(
-                            topLeft: Radius.circular(25),
+                          topLeft: Radius.circular(25),
                         ),
                         child: Container(
                           decoration:
@@ -226,10 +303,12 @@ class _GalleryState extends State<Gallery> {
                   );
                 }),
               ))
-            : const Center(
-                child: Text(
-                  "Загрузка",
-                  style: TextStyle(fontSize: 30),
+            : Expanded(
+                child: Center(
+                  child: RotationTransition(
+                    turns: Tween(begin: 0.0, end: 1.0).animate(animation),
+                    child: Icon(Icons.stars),
+                  ),
                 ),
               )
       ]),
@@ -255,7 +334,10 @@ class _GalleryState extends State<Gallery> {
                     ),
                     const SizedBox(height: 13),
                     FloatingActionButton(
-                      onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const AnimalCardAdd())),
+                      onPressed: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const AnimalCardAdd())),
                       backgroundColor: Theme.of(context).colorScheme.primary,
                       child: const Icon(Icons.add),
                       heroTag: "add",

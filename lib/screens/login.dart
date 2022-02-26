@@ -4,29 +4,6 @@ import 'package:dog_catch/screens/gallery.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Отлов животных',
-      theme: ThemeData(
-          scaffoldBackgroundColor: const Color.fromRGBO(230, 230, 230, 1),
-          colorScheme: ColorScheme.fromSwatch()
-              .copyWith(primary: const Color.fromRGBO(88, 60, 93, 1))
-              .copyWith(secondary: const Color.fromRGBO(209, 185, 29, 1))
-      ),
-      home: const LoginPage(),
-    );
-  }
-}
-
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
 
@@ -38,7 +15,7 @@ class _LoginPageState extends State<LoginPage> {
   late TextEditingController loginController;
   late TextEditingController passwordController;
 
-  User user = GuestUser();
+  User? user;
   var authUser = AuthUser();
   bool isAuthFailed = false;
 
@@ -56,18 +33,21 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
-  void login() async{
-    try{
-      user = await authUser.auth(loginController.value.text,
-                            passwordController.value.text);
+  void login() async {
+    try {
+      user = await authUser.auth(
+          loginController.value.text, passwordController.value.text);
       var prefs = await SharedPreferences.getInstance();
-      user.save(prefs);
-      Navigator.push(context,
+      user!.save(prefs);
+      setState(() {
+        isAuthFailed = false;
+      });
+      Navigator.push(
+          context,
           MaterialPageRoute(
-              builder: (context) => Gallery(user: user)));
-
-    }
-    on AuthorizationException catch(e){
+              builder: (context) => WillPopScope(
+                  onWillPop: () async => false, child: Gallery(user: user))));
+    } on AuthorizationException catch (e) {
       setState(() {
         isAuthFailed = true;
       });
@@ -81,48 +61,58 @@ class _LoginPageState extends State<LoginPage> {
         title: const Text("Вход"),
       ),
       body: Center(
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 35),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              if(isAuthFailed)
-                const Text("Неверные данные пользователя"),
-              TextField(
-                controller: loginController,
-                decoration: const InputDecoration(label: Text("Email")),
-              ),
-              TextField(
-                decoration: const InputDecoration(label: Text("Password")),
-                controller: passwordController,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  ElevatedButton(
-                    onPressed: login,
-                    child: const Text("Вход")),
-                  ElevatedButton(
-                      onPressed: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => Gallery(user: GuestUser()))),
-                      child: const Text("Войти как гость")),
-                ]
-              ),
-              ElevatedButton(
-                  onPressed: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => Gallery(user: User(role: User.catcher)))),
-                  child: const Text(User.catcher)),
-              ElevatedButton(
-                  onPressed: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => Gallery(user: User(role: User.comitee)))),
-                  child: const Text(User.comitee)),
-            ],
+        child: SingleChildScrollView(
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 35),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                if (isAuthFailed) const Text("Неверные данные пользователя"),
+                TextField(
+                  controller: loginController,
+                  decoration: const InputDecoration(label: Text("Email")),
+                ),
+                TextField(
+                  decoration: const InputDecoration(
+                    label: Text("Password"),
+                  ),
+                  obscureText: true,
+                  controller: passwordController,
+                ),
+                Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      ElevatedButton(
+                          onPressed: login, child: const Text("Вход")),
+                      ElevatedButton(
+                          onPressed: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => WillPopScope(
+                                      onWillPop: () async => false,
+                                      child: Gallery(user: GuestUser())))),
+                          child: const Text("Войти как гость")),
+                    ]),
+                ElevatedButton(
+                    onPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => WillPopScope(
+                                onWillPop: () async => false,
+                                child:
+                                    Gallery(user: User(role: User.catcher))))),
+                    child: const Text(User.catcher)),
+                ElevatedButton(
+                    onPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => WillPopScope(
+                                onWillPop: () async => false,
+                                child:
+                                    Gallery(user: User(role: User.comitee))))),
+                    child: const Text(User.comitee)),
+              ],
+            ),
           ),
         ),
       ),

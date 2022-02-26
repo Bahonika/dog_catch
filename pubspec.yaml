@@ -39,7 +39,11 @@ dependencies:
   intl: ^0.17.0
   shared_preferences: ^2.0.13
   image_picker: ^0.8.4+9
+  flutter_native_splash: ^2.0.5
 
+
+flutter_native_splash:
+  color: "#583C5D"
 
 dev_dependencies:
   flutter_test:
