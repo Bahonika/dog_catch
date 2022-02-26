@@ -1,5 +1,5 @@
 import 'package:dog_catch/data/entities/AnimalCard.dart';
-import 'package:dog_catch/data/repository/BasicRepository.dart';
+import 'package:dog_catch/data/repository/abstract/BasicRepository.dart';
 
 class AnimalCardRepository extends BasicRepository<AnimalCard>{
 

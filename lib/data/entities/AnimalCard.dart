@@ -1,12 +1,11 @@
-import 'package:dog_catch/data/entities/Displayable.dart';
-import 'package:intl/intl.dart';
+import 'package:dog_catch/data/entities/abstract/Displayable.dart';
+import 'package:dog_catch/data/entities/DateFormats.dart';
 import 'package:dog_catch/utils/Utf8Convert.dart';
 
+import 'Status.dart';
 enum Sex { male, female }
 
-enum Status { catched, released }
-
-class AnimalCard extends Displayable {
+class AnimalCard implements Displayable {
   final String profileImagePath;
   final List<String> imagePaths;
   final String kind;
@@ -23,7 +22,6 @@ class AnimalCard extends Displayable {
   final int releaseInfo;
 
   static Sex _sexFromStr(String str) => str == "M" ? Sex.male : Sex.female;
-  String _sexToStrAPI() => sex == Sex.male ? "M" : "F";
   String sexToStr() => sex == Sex.male ? "м" : "ж";
 
   static Status _statusFromStr(String str) =>
@@ -81,11 +79,6 @@ class AnimalCard extends Displayable {
         releaseInfo: json["release_info"] ?? -1);
   }
 
-  Map<String, String> toJSON() {
-    // TODO: implement toJson
-    throw UnimplementedError();
-  }
-
   @override
   Map<String, String> getFields() {
     return {
@@ -97,9 +90,9 @@ class AnimalCard extends Displayable {
       AnimalCard.orgAlias: org,
       AnimalCard.municipalityAlias: municipality,
       AnimalCard.statusAlias: statusToStr(),
-      AnimalCard.catchDateAlias: DateFormat("dd.MM.yyyy").format(catchDate),
+      AnimalCard.catchDateAlias: appDateFormat.format(catchDate),
       AnimalCard.releaseDateAlias:
-          releaseDate != null ? DateFormat("dd.MM.yyyy").format(catchDate) : "-"
+          releaseDate != null ? appDateFormat.format(releaseDate!) : "-"
     };
   }
 }

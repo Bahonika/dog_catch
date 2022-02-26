@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:dog_catch/data/repository/Api.dart';
+import 'package:dog_catch/data/repository/abstract/Api.dart';
 
 import '../entities/User.dart';
 import 'package:http/http.dart' as http;

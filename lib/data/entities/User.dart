@@ -51,8 +51,8 @@ class AuthorizedUser extends User{
                   required this.token}) :
         super(role: role);
 
-  String getAuthHeader(){
-    return "Authorization: Token $token";
+  String getToken(){
+    return "Token $token";
   }
 
   factory AuthorizedUser.fromJson(Map<String, dynamic> json){
