@@ -12,7 +12,7 @@ abstract class BasicRepository<T> extends Api{
 
   T fromJson(json);
 
-  Future<List<T>> getAll([Map<String, String>? queryParams, AuthorizedUser? user]) async{
+  Future<List<T>> getAll({Map<String, String>? queryParams, AuthorizedUser? user}) async{
     var uri = Uri.https(Api.siteRoot, apiPath(), queryParams);
     var response = user == null ? await http.get(uri) :
                                   await http.get(uri,

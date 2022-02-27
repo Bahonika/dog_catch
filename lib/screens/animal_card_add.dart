@@ -2,6 +2,7 @@
 
 import 'dart:io';
 import 'package:dog_catch/data/entities/AnimalCard.dart';
+import 'package:dog_catch/data/entities/AnimalImage.dart';
 import 'package:dog_catch/data/entities/AnimalKind.dart';
 import 'package:dog_catch/data/entities/Claim.dart';
 import 'package:dog_catch/data/entities/Municipality.dart';
@@ -17,8 +18,6 @@ import 'package:dog_catch/data/repository/RaidRepository.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
-import '../data/entities/AnimalImage.dart';
-
 class AnimalCardAdd extends StatefulWidget {
   const AnimalCardAdd({Key? key, required this.user}) : super(key: key);
 
@@ -30,10 +29,14 @@ class AnimalCardAdd extends StatefulWidget {
 
 class _AnimalCardAddState extends State<AnimalCardAdd> {
   int kind = 1;
+  int raidN = 1;
+  int claimN = 1;
   String? sex = AnimalCard.sexAlias;
   int municapality = 1;
 
   File? imageFile;
+  File? catchVideo;
+  File? releaseVideo;
   late List<XFile> addImage;
 
   DateTime catchDate = DateTime.now();
@@ -55,6 +58,18 @@ class _AnimalCardAddState extends State<AnimalCardAdd> {
   ClaimRepository claimRepository = ClaimRepository();
   AnimalKindRepository animalKindRepository = AnimalKindRepository();
 
+  pickVideoForEvent() async {
+    XFile? pickedVideo = await ImagePicker().pickVideo(
+      source: ImageSource.gallery,
+      maxDuration: Duration(seconds: 21),
+    );
+    if (pickedVideo != null) {
+      setState(() {
+        catchVideo = File(pickedVideo.path);
+      });
+    }
+  }
+
   pickProfileImage() async {
     XFile? pickedFile = await ImagePicker().pickImage(
       source: ImageSource.gallery,
@@ -67,8 +82,6 @@ class _AnimalCardAddState extends State<AnimalCardAdd> {
       });
     }
   }
-
-
 
   pickAdditionalImages() async {
     List<XFile>? pickedFiles = await ImagePicker().pickMultiImage(
@@ -85,27 +98,32 @@ class _AnimalCardAddState extends State<AnimalCardAdd> {
   }
 
   save() {
-    print("sdas");
+    // загрузка картинок на сервер, получение id картинок
+    // загрузка ивентов и получение id
+    //
     imageRepository.create(AnimalImage(File(imageFile!.path)), widget.user);
   }
 
   getData() async {
     animalKinds = await animalKindRepository.getAll();
     municapalitys = await municipalityRepository.getAll();
+    raids = await raidRepository.getAll(user: widget.user);
+    claims = await claimRepository.getAll(user: widget.user);
+
     setState(() {});
   }
 
-
   @override
   void initState() {
+    print(widget.user);
     getData();
     super.initState();
   }
 
   List<AnimalKind>? animalKinds;
   List<Municipality>? municapalitys;
-  late List<Raid> raids;
-  late List<Claim> claims;
+  List<Raid>? raids;
+  List<Claim>? claims;
 
   @override
   Widget build(BuildContext context) {
@@ -121,19 +139,21 @@ class _AnimalCardAddState extends State<AnimalCardAdd> {
               mainAxisAlignment: MainAxisAlignment.end,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                municapalitys != null ? DropdownButton(
-                  focusColor: Theme.of(context).colorScheme.primary,
-                  items:
-                  municapalitys!.map((e) => DropdownMenuItem(
-                      value: e.id,
-                      child: Text(e.name))).toList(),
-                  onChanged: (int? value) {
-                    setState(() {
-                      municapality = value!;
-                    });
-                  },
-                  value: municapality,
-                ) : Text("Не работает"),
+                municapalitys != null
+                    ? DropdownButton(
+                        focusColor: Theme.of(context).colorScheme.primary,
+                        items: municapalitys!
+                            .map((e) => DropdownMenuItem(
+                                value: e.id, child: Text(e.name)))
+                            .toList(),
+                        onChanged: (int? value) {
+                          setState(() {
+                            municapality = value!;
+                          });
+                        },
+                        value: municapality,
+                      )
+                    : Text("Не работает"),
                 DropdownButton(
                   focusColor: Theme.of(context).colorScheme.primary,
                   items: const [
@@ -150,19 +170,21 @@ class _AnimalCardAddState extends State<AnimalCardAdd> {
                   },
                   value: sex,
                 ),
-                animalKinds != null ? DropdownButton(
-                  focusColor: Theme.of(context).colorScheme.primary,
-                  items:
-                  animalKinds!.map((e) => DropdownMenuItem(
-                      value: e.id,
-                      child: Text(e.kind))).toList(),
-                  onChanged: (int? value) {
-                    setState(() {
-                      kind = value!;
-                    });
-                  },
-                  value: kind,
-                ) : Text("Не работает"),
+                animalKinds != null
+                    ? DropdownButton(
+                        focusColor: Theme.of(context).colorScheme.primary,
+                        items: animalKinds!
+                            .map((e) => DropdownMenuItem(
+                                value: e.id, child: Text(e.kind)))
+                            .toList(),
+                        onChanged: (int? value) {
+                          setState(() {
+                            kind = value!;
+                          });
+                        },
+                        value: kind,
+                      )
+                    : Text("Не работает"),
                 ElevatedButton(
                     onPressed: pickProfileImage,
                     child: const Text("Выбирите изображение профиля")),
@@ -184,13 +206,40 @@ class _AnimalCardAddState extends State<AnimalCardAdd> {
                   decoration:
                       InputDecoration(label: Text(AnimalCard.infoAlias)),
                 ),
-
-                //orgaznization
-                // DropdownButton(items: items, onChanged: onChanged),
-
-                //municipalitet
-                // DropdownButton(items: items, onChanged: onChanged)
-
+                Center(child: Text("Информация об отлове")),
+                raids != null
+                    ? DropdownButton(
+                        focusColor: Theme.of(context).colorScheme.primary,
+                        items: raids!
+                            .map((e) => DropdownMenuItem(
+                                value: e.raidN,
+                                child: Text(e.raidN.toString())))
+                            .toList(),
+                        onChanged: (int? value) {
+                          setState(() {
+                            raidN = value!;
+                          });
+                        },
+                        value: raidN,
+                      )
+                    : Text("Не работает"),
+                claims != null
+                    ? DropdownButton(
+                        focusColor: Theme.of(context).colorScheme.primary,
+                        items: claims!
+                            .map((e) => DropdownMenuItem(
+                                value: e.claimN,
+                                child: Text(e.claimN.toString())))
+                            .toList(),
+                        onChanged: (int? value) {
+                          setState(() {
+                            claimN = value!;
+                          });
+                        },
+                        value: raidN,
+                      )
+                    : Text("Не работает"),
+                Center(child: Text("Информация о выпуске")),
                 Center(
                     child: Container(
                         margin: EdgeInsets.only(top: 10),

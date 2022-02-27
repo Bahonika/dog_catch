@@ -33,7 +33,7 @@ class _GalleryState extends State<Gallery> with SingleTickerProviderStateMixin {
   var repository = AnimalCardRepository();
 
   Future<void> getData() async {
-    var list = await repository.getAll(queryParams);
+    var list = await repository.getAll(queryParams: queryParams);
     var sharedPrefs = await SharedPreferences.getInstance();
     user = widget.user ?? await restoreFromSharedPrefs(sharedPrefs);
 

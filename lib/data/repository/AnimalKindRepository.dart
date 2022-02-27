@@ -12,7 +12,7 @@ class AnimalKindRepository extends BasicRepository<AnimalKind>{
   }
 
   Future<List<AnimalKind>> getByKind(String kind){
-    return super.getAll({'kind': kind});
+    return super.getAll(queryParams: {'kind': kind});
   }
 
 }

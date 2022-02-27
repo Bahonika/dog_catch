@@ -18,7 +18,7 @@ abstract class PostUpdateRepository<T extends Postable> extends BasicRepository<
     var response = await http.post(uri, headers: {'Authorization': "Token ${user.token})"},
                                         body: entity.toJson());
     var status = response.statusCode;
-    if (status == 200){
+    if (status == 201){
       var json = convert.jsonDecode(response.body);
       return json[idAlias] as int;
     }
@@ -29,7 +29,7 @@ abstract class PostUpdateRepository<T extends Postable> extends BasicRepository<
     var response = await http.put(apiIdPath(id), headers: {'Authorization': "Token ${user.token})"},
                                                   body: entity.toJson());
     var status = response.statusCode;
-    if(status != 200){
+    if(status != 201){
       throw HttpException("can't update Status: $status");
     }
   }

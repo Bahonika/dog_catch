@@ -30,11 +30,11 @@ abstract class MultipartRepository<T extends PostableMultipart> extends PostUpda
                                   data: formData,
                                   options: Options(
                                     headers: {
-                                      HttpHeaders.contentTypeHeader: 'application/json',
+                                      HttpHeaders.contentTypeHeader: 'multipart/form-data',
                                       HttpHeaders.authorizationHeader: 'Token ' + user.token}
                                   ));
     var status = response.statusCode;
-    if (status == 200){
+    if (status == 201){
       return response.data[idAlias];
     }
     throw HttpException("can't post to $uri Status: $status");
@@ -50,7 +50,7 @@ abstract class MultipartRepository<T extends PostableMultipart> extends PostUpda
                                     headers: {'Authorization': "Token ${user.token})"}
                                 ));
     var status = response.statusCode;
-    if(status != 200){
+    if(status != 201){
       throw HttpException("can't update Status: $status");
     }
   }

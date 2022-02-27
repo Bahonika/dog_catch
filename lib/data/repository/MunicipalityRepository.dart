@@ -12,7 +12,7 @@ class MunicipalityRepository extends BasicRepository<Municipality>{
   }
 
   Future<List<Municipality>> getByName(String name){
-    return super.getAll({'name': name});
+    return super.getAll(queryParams: {'name': name});
   }
 
 }
