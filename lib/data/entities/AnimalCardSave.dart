@@ -1,13 +1,12 @@
 import 'package:dog_catch/data/entities/abstract/Postable.dart';
 
-import 'AnimalCard.dart';
 
 class AnimalCardSave implements Postable{
 
   final int pickedProfilePicId;
   final List<int> images;
   final int kindId;
-  final Sex sex;
+  final String sex;
   final String? chipN;
   final String? badgeN;
   final String info;
@@ -15,7 +14,6 @@ class AnimalCardSave implements Postable{
   final int catchInfoId;
   final int? releaseInfoId;
 
-  String _sexToStrAPI() => sex == Sex.male ? "M" : "F";
 
   AnimalCardSave({
         required this.pickedProfilePicId,
@@ -34,11 +32,13 @@ class AnimalCardSave implements Postable{
   Map<String, dynamic> toJson() {
     var fields = {
       'kind': kindId,
-      'sex': _sexToStrAPI(),
+      'sex': sex,
       'profile_pic': pickedProfilePicId,
-      'images': images,
+      'pictures': images,
       'municipality': municipalityId,
-      'catch_info': catchInfoId
+      'catch_info': catchInfoId,
+      'info': info,
+      'org': 1
     };
     if(releaseInfoId != null){
       fields['release_info'] = releaseInfoId!;

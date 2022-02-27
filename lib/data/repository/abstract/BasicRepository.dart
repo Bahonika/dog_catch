@@ -16,7 +16,7 @@ abstract class BasicRepository<T> extends Api{
     var uri = Uri.https(Api.siteRoot, apiPath(), queryParams);
     var response = user == null ? await http.get(uri) :
                                   await http.get(uri,
-                                      headers: {'Authorization': "Token ${user.token})"});
+                                      headers: {'Authorization': "Token ${user.token}"});
     var status = response.statusCode;
     if (status == 200){
       List<T> list = [];

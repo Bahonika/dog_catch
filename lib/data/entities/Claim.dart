@@ -22,7 +22,7 @@ class Claim implements Postable{
 
     factory Claim.fromJson(Map<String, dynamic> json) {
         return Claim(claimN: json["claim_n"],
-                     date: DateTime.parse(utf8convert(json["raid_date"] as String)),
+                     date: DateTime.parse(utf8convert(json["claim_date"] as String)),
                      description: utf8convert(json["description"]),
                      status: statusFromStr(utf8convert(json["claim_type"])));
     }

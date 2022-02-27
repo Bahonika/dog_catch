@@ -7,7 +7,7 @@ class EventInfoSave implements PostableMultipart{
   final num lat;
   final num long;
   final int claimId;
-  final int raidId;
+  final int? raidId;
   final File video;
 
   EventInfoSave({
@@ -15,19 +15,24 @@ class EventInfoSave implements PostableMultipart{
     required this.lat,
     required this.long,
     required this.claimId,
-    required this.raidId,
+    this.raidId,
     required this.video
   });
 
   @override
   Map<String, dynamic> toJson() {
-    return {
+    var tempMap = {
       'adress': adress,
       'lat': lat,
       'long': long,
       'claim': claimId,
-      'raid': raidId,
     };
+
+    if (raidId != null) {
+      tempMap["raid"] = raidId!;
+    }
+    return tempMap;
+
   }
 
   @override

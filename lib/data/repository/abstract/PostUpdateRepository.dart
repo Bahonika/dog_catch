@@ -1,9 +1,9 @@
 import 'dart:io';
 
+import 'package:dio/dio.dart';
 import 'package:dog_catch/data/entities/User.dart';
 import 'package:dog_catch/data/repository/abstract/BasicRepository.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert' as convert;
 
 
 import '../../entities/abstract/Postable.dart';
@@ -15,12 +15,16 @@ abstract class PostUpdateRepository<T extends Postable> extends BasicRepository<
 
   Future<int> create(T entity, AuthorizedUser user) async{
     var uri = Uri.https(Api.siteRoot, apiPath());
-    var response = await http.post(uri, headers: {'Authorization': "Token ${user.token}"},
-                                        body: entity.toJson());
+    var dio = Dio();
+    var response = await dio.post("https://" + Api.siteRoot+apiPath(),
+        data: entity.toJson(),
+        options: Options(
+            headers: {
+              HttpHeaders.authorizationHeader: 'Token ' + user.token}
+        ));
     var status = response.statusCode;
     if (status == 201){
-      var json = convert.jsonDecode(response.body);
-      return json[idAlias] as int;
+      return response.data[idAlias];
     }
     throw HttpException("can't post to $uri Status: $status");
   }

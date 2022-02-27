@@ -2,9 +2,12 @@
 
 import 'dart:io';
 import 'package:dog_catch/data/entities/AnimalCard.dart';
+import 'package:dog_catch/data/entities/AnimalCardSave.dart';
 import 'package:dog_catch/data/entities/AnimalImage.dart';
 import 'package:dog_catch/data/entities/AnimalKind.dart';
 import 'package:dog_catch/data/entities/Claim.dart';
+import 'package:dog_catch/data/entities/EventInfo.dart';
+import 'package:dog_catch/data/entities/EventInfoSave.dart';
 import 'package:dog_catch/data/entities/Municipality.dart';
 import 'package:dog_catch/data/entities/Raid.dart';
 import 'package:dog_catch/data/entities/User.dart';
@@ -30,14 +33,15 @@ class AnimalCardAdd extends StatefulWidget {
 class _AnimalCardAddState extends State<AnimalCardAdd> {
   int kind = 1;
   int raidN = 1;
-  int claimN = 1;
+  int catchClaimN = 1;
+  int releaseClaimN = 1;
   String? sex = AnimalCard.sexAlias;
   int municapality = 1;
 
-  File? imageFile;
+  File? profileImage;
   File? catchVideo;
   File? releaseVideo;
-  late List<XFile> addImage;
+  late List<XFile> pictures = [];
 
   DateTime catchDate = DateTime.now();
   DateTime releaseDate = DateTime.now();
@@ -78,7 +82,7 @@ class _AnimalCardAddState extends State<AnimalCardAdd> {
     );
     if (pickedFile != null) {
       setState(() {
-        imageFile = File(pickedFile.path);
+        profileImage = File(pickedFile.path);
       });
     }
   }
@@ -91,31 +95,75 @@ class _AnimalCardAddState extends State<AnimalCardAdd> {
     if (pickedFiles != null) {
       setState(() {
         for (XFile pickedFile in pickedFiles) {
-          addImage.add(pickedFile);
+          pictures.add(pickedFile);
         }
       });
     }
   }
 
-  save() {
-    // загрузка картинок на сервер, получение id картинок
-    // загрузка ивентов и получение id
-    //
-    imageRepository.create(AnimalImage(File(imageFile!.path)), widget.user);
+  save() async {
+    int profileImageId = await imageRepository.create(
+        AnimalImage(File(profileImage!.path)), widget.user);
+
+    List<int> picturesId = [];
+
+    for (final picture in pictures) {
+      picturesId.add(await imageRepository.create(
+          AnimalImage(File(picture.path)), widget.user));
+    }
+
+    EventInfoSave catchEventInfoSave = EventInfoSave(
+        adress: addressController.text.toString(),
+        claimId: catchClaimN,
+        lat: 68,
+        long: 34,
+        video: File(catchVideo!.path),
+        raidId: raidN);
+
+    int catchId =
+        await eventInfoSaveRepository.create(catchEventInfoSave, widget.user);
+
+    //TODO add bool checker
+    EventInfoSave releaseEventInfoSave = EventInfoSave(
+      adress: addressController.text,
+      claimId: releaseClaimN,
+      lat: 68,
+      long: 34,
+      video: File(catchVideo!.path),
+    );
+
+    int releaseId =
+        await eventInfoSaveRepository.create(releaseEventInfoSave, widget.user);
+
+    AnimalCardSave animalCardSave = AnimalCardSave(
+        pickedProfilePicId: profileImageId,
+        images: picturesId,
+        kindId: kind,
+        sex: sex!,
+        info: infoController.text,
+        municipalityId: municapality,
+        catchInfoId: catchId,
+        badgeN: badgeController.text,
+        chipN: chipController.text,
+        );
+
+    animalCardSaveRepository.create(animalCardSave, widget.user);
   }
 
   getData() async {
     animalKinds = await animalKindRepository.getAll();
     municapalitys = await municipalityRepository.getAll();
     raids = await raidRepository.getAll(user: widget.user);
-    claims = await claimRepository.getAll(user: widget.user);
+    catchClaims = await claimRepository
+        .getAll(user: widget.user, queryParams: {"claim_type": "O"});
+    releaseClaims = await claimRepository
+        .getAll(user: widget.user, queryParams: {"claim_type": "V"});
 
     setState(() {});
   }
 
   @override
   void initState() {
-    print(widget.user);
     getData();
     super.initState();
   }
@@ -123,7 +171,8 @@ class _AnimalCardAddState extends State<AnimalCardAdd> {
   List<AnimalKind>? animalKinds;
   List<Municipality>? municapalitys;
   List<Raid>? raids;
-  List<Claim>? claims;
+  List<Claim>? catchClaims;
+  List<Claim>? releaseClaims;
 
   @override
   Widget build(BuildContext context) {
@@ -132,9 +181,9 @@ class _AnimalCardAddState extends State<AnimalCardAdd> {
         title: const Text("Добавление карточки"),
       ),
       body: Center(
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
-          child: SingleChildScrollView(
+        child: SingleChildScrollView(
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.end,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -207,13 +256,17 @@ class _AnimalCardAddState extends State<AnimalCardAdd> {
                       InputDecoration(label: Text(AnimalCard.infoAlias)),
                 ),
                 Center(child: Text("Информация об отлове")),
+                TextField(
+                  controller: addressController,
+                  decoration:
+                      InputDecoration(label: Text(EventInfo.adressAlias)),
+                ),
                 raids != null
                     ? DropdownButton(
                         focusColor: Theme.of(context).colorScheme.primary,
                         items: raids!
                             .map((e) => DropdownMenuItem(
-                                value: e.raidN,
-                                child: Text(e.raidN.toString())))
+                                value: e.raidN, child: Text(e.toString())))
                             .toList(),
                         onChanged: (int? value) {
                           setState(() {
@@ -223,23 +276,40 @@ class _AnimalCardAddState extends State<AnimalCardAdd> {
                         value: raidN,
                       )
                     : Text("Не работает"),
-                claims != null
+                catchClaims != null
                     ? DropdownButton(
                         focusColor: Theme.of(context).colorScheme.primary,
-                        items: claims!
+                        items: catchClaims!
                             .map((e) => DropdownMenuItem(
-                                value: e.claimN,
-                                child: Text(e.claimN.toString())))
+                                value: e.claimN, child: Text(e.toString())))
                             .toList(),
                         onChanged: (int? value) {
                           setState(() {
-                            claimN = value!;
+                            catchClaimN = value!;
                           });
                         },
-                        value: raidN,
+                        value: catchClaimN,
                       )
                     : Text("Не работает"),
                 Center(child: Text("Информация о выпуске")),
+                releaseClaims != null
+                    ? DropdownButton(
+                        focusColor: Theme.of(context).colorScheme.primary,
+                        items: releaseClaims!
+                            .map((e) => DropdownMenuItem(
+                                value: e.claimN, child: Text(e.toString())))
+                            .toList(),
+                        onChanged: (int? value) {
+                          setState(() {
+                            releaseClaimN = value!;
+                          });
+                        },
+                        value: releaseClaimN,
+                      )
+                    : Text("Не работает"),
+                ElevatedButton(
+                    onPressed: pickVideoForEvent,
+                    child: const Text("Выберите видео")),
                 Center(
                     child: Container(
                         margin: EdgeInsets.only(top: 10),

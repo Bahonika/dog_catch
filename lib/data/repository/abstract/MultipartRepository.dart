@@ -30,7 +30,6 @@ abstract class MultipartRepository<T extends PostableMultipart> extends PostUpda
                                   data: formData,
                                   options: Options(
                                     headers: {
-                                      HttpHeaders.contentTypeHeader: 'multipart/form-data',
                                       HttpHeaders.authorizationHeader: 'Token ' + user.token}
                                   ));
     var status = response.statusCode;
