@@ -39,7 +39,6 @@ class _GalleryState extends State<Gallery> with SingleTickerProviderStateMixin {
 
     setState(() {
       animalCardList = list;
-      // user = userD;
     });
   }
 
@@ -128,6 +127,7 @@ class _GalleryState extends State<Gallery> with SingleTickerProviderStateMixin {
   // }
 
   // shows dialog with search settings
+
   void showSearchSettings(BuildContext context) {
     showDialog(
         context: context,
@@ -504,7 +504,7 @@ class _GalleryState extends State<Gallery> with SingleTickerProviderStateMixin {
                       onPressed: () => Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => const AnimalCardAdd())),
+                              builder: (context) => AnimalCardAdd(user: user as AuthorizedUser))),
                       backgroundColor: Theme.of(context).colorScheme.primary,
                       child: const Icon(Icons.add),
                       heroTag: "add",

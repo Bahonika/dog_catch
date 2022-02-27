@@ -4,9 +4,8 @@ import 'package:dog_catch/data/entities/abstract/PostableMultipart.dart';
 
 import 'Claim.dart';
 import 'Raid.dart';
-import 'abstract/Postable.dart';
 
-class EventInfoSave implements Postable, PostableMultipart{
+class EventInfoSave implements PostableMultipart{
 
   final String adress;
   final num lat;
