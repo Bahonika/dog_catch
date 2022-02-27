@@ -1,8 +1,10 @@
 // ignore_for_file: prefer_const_constructors
 
 import 'dart:io';
+import 'package:dog_catch/data/entities/AnimalCard.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 
 class AnimalCardAdd extends StatefulWidget {
   const AnimalCardAdd({Key? key}) : super(key: key);
@@ -12,10 +14,14 @@ class AnimalCardAdd extends StatefulWidget {
 }
 
 class _AnimalCardAddState extends State<AnimalCardAdd> {
-  String? kind = "Выберите тип";
-  String? sex = "Выберите пол";
+  String? kind = AnimalCard.kindAlias;
+  String? sex = AnimalCard.sexAlias;
+
   late File imageFile;
   late List<XFile> addImage;
+
+  DateTime catchDate = DateTime.now();
+  DateTime releaseDate = DateTime.now();
 
   pickProfileImage() async {
     XFile? pickedFile = await ImagePicker().pickImage(
@@ -49,7 +55,7 @@ class _AnimalCardAddState extends State<AnimalCardAdd> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Добавление карточки животного"),
+        title: const Text("Добавление карточки"),
       ),
       body: Center(
         child: Container(
@@ -63,7 +69,8 @@ class _AnimalCardAddState extends State<AnimalCardAdd> {
                   focusColor: Theme.of(context).colorScheme.primary,
                   items: const [
                     DropdownMenuItem(
-                        value: "Выберите тип", child: Text("Выберите тип")),
+                        value: AnimalCard.kindAlias,
+                        child: Text(AnimalCard.kindAlias)),
                     DropdownMenuItem(value: "Собака", child: Text("Собака")),
                     DropdownMenuItem(value: "Кошка", child: Text("Кошка"))
                   ],
@@ -78,7 +85,8 @@ class _AnimalCardAddState extends State<AnimalCardAdd> {
                   focusColor: Theme.of(context).colorScheme.primary,
                   items: const [
                     DropdownMenuItem(
-                        value: "Выберите пол", child: Text("Выберите пол")),
+                        value: AnimalCard.sexAlias,
+                        child: Text(AnimalCard.sexAlias)),
                     DropdownMenuItem(value: "M", child: Text("Мужской")),
                     DropdownMenuItem(value: "F", child: Text("Женский"))
                   ],
@@ -96,20 +104,25 @@ class _AnimalCardAddState extends State<AnimalCardAdd> {
                     onPressed: pickAdditionalImages,
                     child: const Text("Выбирите дополнительные изображения")),
                 const TextField(
-                  decoration: InputDecoration(label: Text("Номер чипа")),
+                  decoration:
+                      InputDecoration(label: Text(AnimalCard.chipAlias)),
                 ),
                 const TextField(
-                  decoration: InputDecoration(label: Text("Номер бирки")),
+                  decoration:
+                      InputDecoration(label: Text(AnimalCard.badgeAlias)),
                 ),
                 const TextField(
-                  decoration: InputDecoration(label: Text("Приметы")),
+                  decoration:
+                      InputDecoration(label: Text(AnimalCard.infoAlias)),
                 ),
                 const TextField(
-                  decoration: InputDecoration(label: Text("Организация")),
+                  decoration: InputDecoration(label: Text(AnimalCard.orgAlias)),
                 ),
                 const TextField(
-                  decoration: InputDecoration(label: Text("Муниципалитет")),
+                  decoration: InputDecoration(
+                      label: Text(AnimalCard.municipalityAlias)),
                 ),
+
                 Center(
                     child: Container(
                         margin: EdgeInsets.only(top: 10),

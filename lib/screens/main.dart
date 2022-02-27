@@ -44,7 +44,6 @@ class Redirection extends StatefulWidget {
 
 class _RedirectionState extends State<Redirection> {
   User? user;
-  bool showSplashScreen = true;
 
   restoreUser() async {
     var prefs = await SharedPreferences.getInstance();
@@ -60,8 +59,6 @@ class _RedirectionState extends State<Redirection> {
 
   @override
   Widget build(BuildContext context) {
-    return
-        // showSplashScreen ?
-        user != null ? Gallery(user: user) : const LoginPage();
+    return user != null ? Gallery(user: user) : const LoginPage();
   }
 }
