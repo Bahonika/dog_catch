@@ -26,10 +26,12 @@ abstract class MultipartRepository<T extends PostableMultipart> extends PostUpda
     var uri = Uri.https(Api.siteRoot, apiPath());
     var dio = Dio();
     var formData = await _prepareData(entity);
-    var response = await dio.post(Api.siteRoot+apiPath(),
+    var response = await dio.post("https://" + Api.siteRoot+apiPath(),
                                   data: formData,
                                   options: Options(
-                                    headers: {'Authorization': "Token ${user.token}"}
+                                    headers: {
+                                      HttpHeaders.contentTypeHeader: 'application/json',
+                                      HttpHeaders.authorizationHeader: 'Token ' + user.token}
                                   ));
     var status = response.statusCode;
     if (status == 200){
