@@ -6,23 +6,22 @@ import 'dart:convert' as convert;
 
 import '../../entities/User.dart';
 
-abstract class BasicRepository<T> extends Api {
-  Uri apiIdPath(int id) =>
-      Uri.https(Api.siteRoot, Api.apiRoot + apiEndpoint + "/$id");
+abstract class BasicRepository<T> extends Api{
+
+  Uri apiIdPath(int id) => Uri.https(Api.siteRoot, Api.apiRoot+apiEndpoint+"/$id");
 
   T fromJson(json);
 
-  Future<List<T>> getAll(
-      [Map<String, String>? queryParams, AuthorizedUser? user]) async {
+  Future<List<T>> getAll([Map<String, String>? queryParams, AuthorizedUser? user]) async{
     var uri = Uri.https(Api.siteRoot, apiPath(), queryParams);
-    var response = user == null
-        ? await http.get(uri)
-        : await http.get(uri, headers: {'Authorization': user.getToken()});
+    var response = user == null ? await http.get(uri) :
+                                  await http.get(uri,
+                                      headers: {'Authorization': "Token ${user.token})"});
     var status = response.statusCode;
-    if (status == 200) {
+    if (status == 200){
       List<T> list = [];
       var json = convert.jsonDecode(response.body);
-      for (final item in json) {
+      for(final item in json){
         list.add(fromJson(item));
       }
       return list;
@@ -30,15 +29,17 @@ abstract class BasicRepository<T> extends Api {
     throw HttpException("can't access $uri Status: $status");
   }
 
-  Future<T> getById(int id, [AuthorizedUser? user]) async {
-    var response = user == null
-        ? await http.get(apiIdPath(id))
-        : await http
-            .get(apiIdPath(id), headers: {'Authorization': user.getToken()});
+  Future<T> getById(int id, [AuthorizedUser? user]) async{
+    var response = user == null ? await http.get(apiIdPath(id)) :
+                                  await http.get(apiIdPath(id),
+                                      headers: {'Authorization': "Token ${user.token}"});
     var status = response.statusCode;
-    if (status == 200) {
+    if (status == 200){
       return fromJson(convert.jsonDecode(response.body));
     }
     throw HttpException("can't access $apiPath()/$id Status: $status");
   }
+
+
+
 }

@@ -1,17 +1,19 @@
-import 'package:image_picker/image_picker.dart';
+import 'dart:io';
+
+import 'package:dog_catch/data/entities/abstract/PostableMultipart.dart';
 
 import 'Claim.dart';
 import 'Raid.dart';
 import 'abstract/Postable.dart';
 
-class EventInfoSave implements Postable{
+class EventInfoSave implements Postable, PostableMultipart{
 
   final String adress;
   final num lat;
   final num long;
   final Claim claim;
   final Raid raid;
-  final XFile video;
+  final File video;
 
   EventInfoSave({
     required this.adress,
@@ -30,7 +32,13 @@ class EventInfoSave implements Postable{
       'long': long,
       'claim': claim.claimN,
       'raid': raid.raidN,
-      'video': video.readAsBytes()
+    };
+  }
+
+  @override
+  Map<String, File> getFiles() {
+    return {
+      'video': video
     };
   }
 

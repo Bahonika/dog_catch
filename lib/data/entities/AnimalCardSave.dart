@@ -1,6 +1,3 @@
-import 'package:dog_catch/data/entities/AnimalKind.dart';
-import 'package:dog_catch/data/entities/EventInfo.dart';
-import 'package:dog_catch/data/entities/Municipality.dart';
 import 'package:dog_catch/data/entities/abstract/Postable.dart';
 
 import 'AnimalCard.dart';
@@ -9,40 +6,50 @@ class AnimalCardSave implements Postable{
 
   final int pickedProfilePicId;
   final List<int> images;
-  final AnimalKind kind;
+  final int kindId;
   final Sex sex;
   final String? chipN;
   final String? badgeN;
   final String info;
-  final Municipality municipality;
-  final EventInfo catchInfo;
-  final EventInfo? releaseInfo;
+  final int municipalityId;
+  final int catchInfoId;
+  final int? releaseInfoId;
 
   String _sexToStrAPI() => sex == Sex.male ? "M" : "F";
 
   AnimalCardSave({
         required this.pickedProfilePicId,
         required this.images,
-        required this.kind,
+        required this.kindId,
         required this.sex,
         this.chipN,
         this.badgeN,
         required this.info,
-        required this.municipality,
-        required this.catchInfo,
-        this.releaseInfo
+        required this.municipalityId,
+        required this.catchInfoId,
+        this.releaseInfoId
   });
 
   @override
   Map<String, dynamic> toJson() {
-    return {
-      'kind': kind.id,
+    var fields = {
+      'kind': kindId,
       'sex': _sexToStrAPI(),
       'profile_pic': pickedProfilePicId,
       'images': images,
-      'municipality': municipality.id,
-      'catch_info': catchInfo.id
+      'municipality': municipalityId,
+      'catch_info': catchInfoId
     };
+    if(releaseInfoId != null){
+      fields['release_info'] = releaseInfoId!;
+    }
+    if(chipN != null){
+      fields['chip_n'] = chipN!;
+    }
+    if(badgeN != null){
+      fields['badge_n'] = badgeN!;
+    }
+    return fields;
   }
 
 }
