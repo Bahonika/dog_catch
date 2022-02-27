@@ -1,26 +1,21 @@
 import 'dart:io';
 
 import 'package:dog_catch/data/entities/abstract/PostableMultipart.dart';
-
-import 'Claim.dart';
-import 'Raid.dart';
-import 'abstract/Postable.dart';
-
-class EventInfoSave implements Postable, PostableMultipart{
+class EventInfoSave implements PostableMultipart{
 
   final String adress;
   final num lat;
   final num long;
-  final Claim claim;
-  final Raid raid;
+  final int claimId;
+  final int raidId;
   final File video;
 
   EventInfoSave({
     required this.adress,
     required this.lat,
     required this.long,
-    required this.claim,
-    required this.raid,
+    required this.claimId,
+    required this.raidId,
     required this.video
   });
 
@@ -30,8 +25,8 @@ class EventInfoSave implements Postable, PostableMultipart{
       'adress': adress,
       'lat': lat,
       'long': long,
-      'claim': claim.claimN,
-      'raid': raid.raidN,
+      'claim': claimId,
+      'raid': raidId,
     };
   }
 

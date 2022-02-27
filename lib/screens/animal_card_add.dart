@@ -4,7 +4,6 @@ import 'dart:io';
 import 'package:dog_catch/data/entities/AnimalCard.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:intl/intl.dart';
 
 class AnimalCardAdd extends StatefulWidget {
   const AnimalCardAdd({Key? key}) : super(key: key);
@@ -87,7 +86,7 @@ class _AnimalCardAddState extends State<AnimalCardAdd> {
                     DropdownMenuItem(
                         value: AnimalCard.sexAlias,
                         child: Text(AnimalCard.sexAlias)),
-                    DropdownMenuItem(value: "M", child: Text("Мужской")),
+                    DropdownMenuItem(value: "", child: Text("Мужской")),
                     DropdownMenuItem(value: "F", child: Text("Женский"))
                   ],
                   onChanged: (String? value) {
