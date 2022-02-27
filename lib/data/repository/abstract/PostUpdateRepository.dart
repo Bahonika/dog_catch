@@ -15,7 +15,7 @@ abstract class PostUpdateRepository<T extends Postable> extends BasicRepository<
 
   Future<int> create(T entity, AuthorizedUser user) async{
     var uri = Uri.https(Api.siteRoot, apiPath());
-    var response = await http.post(uri, headers: {'Authorization': "Token ${user.token})"},
+    var response = await http.post(uri, headers: {'Authorization': "Token ${user.token}"},
                                         body: entity.toJson());
     var status = response.statusCode;
     if (status == 201){
@@ -26,7 +26,7 @@ abstract class PostUpdateRepository<T extends Postable> extends BasicRepository<
   }
 
   Future<void> update(T entity, int id, AuthorizedUser user) async{
-    var response = await http.put(apiIdPath(id), headers: {'Authorization': "Token ${user.token})"},
+    var response = await http.put(apiIdPath(id), headers: {'Authorization': "Token ${user.token}"},
                                                   body: entity.toJson());
     var status = response.statusCode;
     if(status != 201){

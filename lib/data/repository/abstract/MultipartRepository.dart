@@ -47,7 +47,7 @@ abstract class MultipartRepository<T extends PostableMultipart> extends PostUpda
     var response = await dio.put(apiIdPath(id).toString(),
                                 data: formData,
                                 options: Options(
-                                    headers: {'Authorization': "Token ${user.token})"}
+                                    headers: {'Authorization': "Token ${user.token}"}
                                 ));
     var status = response.statusCode;
     if(status != 201){
