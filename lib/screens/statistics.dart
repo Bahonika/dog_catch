@@ -1,6 +1,11 @@
 import 'package:dog_catch/data/entities/DateFormats.dart';
+import 'package:dog_catch/data/entities/StatisticsFrame.dart';
+import 'package:dog_catch/data/entities/StatisticsInfo.dart';
+import 'package:dog_catch/utils/DetailedStatisticsView.dart';
+import 'package:dog_catch/utils/GroupedStatisticsView.dart';
 import 'package:flutter/material.dart';
 import 'package:pie_chart/pie_chart.dart';
+import 'package:charts_flutter/flutter.dart' as charts;
 
 import '../data/entities/User.dart';
 import '../data/repository/StatisticRepository.dart';
@@ -14,19 +19,46 @@ class Statistics extends StatefulWidget {
   _StatisticsState createState() => _StatisticsState();
 }
 
-class _StatisticsState extends State<Statistics> {
+class _StatisticsState extends State<Statistics>{
 
   StatisticsRepository statistics = StatisticsRepository();
 
-  final colorList = [
-    const Color.fromRGBO(242, 209, 102, 1),
-    const Color.fromRGBO(228, 131, 64, 1),
+  List<Color> colorList = [
+      const Color.fromRGBO(228, 131, 64, 1),
+      const Color.fromRGBO(242, 209, 102, 1)
   ];
+
+  Color getColorByStatus(String status) =>
+        status == "Поймано" ?
+            const Color.fromRGBO(228, 131, 64, 1) :
+            const Color.fromRGBO(242, 209, 102, 1);
+
 
   DateTime startDate = DateTime.now();
   DateTime endDate = DateTime.now();
-  Map<String, double> totalStatistics = {};
 
+  final _startDateEditingController = TextEditingController();
+  final _endDateEditingController = TextEditingController();
+
+  StatisticsFrame? _statisticsFrame;
+
+  List<charts.Series<MapEntry<String, int>, String>>? totalStatistics;
+
+
+  @override
+  void initState() {
+    super.initState();
+    _startDateEditingController.text = appDateFormat.format(startDate);
+    _endDateEditingController.text = appDateFormat.format(endDate);
+    getStatistics();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _startDateEditingController.dispose();
+    _endDateEditingController.dispose();
+  }
 
   void pickStartDate() async{
     var picked = await showDatePicker(context: context,
@@ -34,10 +66,13 @@ class _StatisticsState extends State<Statistics> {
         firstDate: DateTime(2000),
         lastDate: DateTime(2100));
     startDate = picked ?? startDate;
+    _startDateEditingController.text = appDateFormat.format(startDate);
     if(startDate.isAfter(endDate)){
       endDate = DateTime(startDate.year, startDate.month, startDate.day);
+      _endDateEditingController.text = appDateFormat.format(endDate);
     }
     setState(()=>{});
+    getStatistics();
   }
 
   void pickEndDate() async{
@@ -46,14 +81,62 @@ class _StatisticsState extends State<Statistics> {
         firstDate: startDate,
         lastDate: DateTime(2100));
     endDate = picked ?? endDate;
+    _endDateEditingController.text = appDateFormat.format(endDate);
     setState(()=>{});
+    getStatistics();
   }
 
   void getStatistics() async{
-    var data = await statistics.getAll(startDate, endDate, widget.user);
-    totalStatistics["Поймано"] = (data["total"]["catched"] as int).toDouble();
-    totalStatistics["Выпущено"] = (data["total"]["released"] as int).toDouble();
+    _statisticsFrame = await statistics.getAll(startDate, endDate, widget.user);
     setState(()=>{});
+  }
+
+  Future<Map<String, StatisticsInfo>> getDetailedStatistics(int id){
+    return statistics.getDetailed(startDate, endDate, id, widget.user);
+  }
+
+  // не работает из-за бага в библиотеке charts_flutter
+  Widget createSummaryPie(){
+    final totalStatistics = [
+      charts.Series<MapEntry<String, int>, String>(
+          id: "Общая информация",
+          domainFn: (MapEntry<String, int> row, _) => row.key,
+          measureFn: (MapEntry<String, int> row, _) => row.value,
+          colorFn: (MapEntry<String, int> row, _) =>
+              charts.ColorUtil.fromDartColor(
+              getColorByStatus(row.key)
+          ),
+          data: _statisticsFrame!.total.asRowSet())
+    ];
+    return charts.PieChart(
+        totalStatistics,
+        animate: true,
+        // баг в chart_flutter: не отображается при указании defaultRenderer
+        // https://github.com/google/charts/issues/321
+        defaultRenderer: charts.ArcRendererConfig(arcRendererDecorators: [
+          charts.ArcLabelDecorator(
+              labelPosition: charts.ArcLabelPosition.outside)
+        ])
+    );
+  }
+
+  // придется пока использовать для круговых диаграмм pie
+  Widget createSummaryPie2(){
+    return PieChart(
+      dataMap: Map.fromEntries(_statisticsFrame!.total.asRowSet()
+          .map((item) => MapEntry(item.key, item.value.toDouble()))),
+      chartValuesOptions: const ChartValuesOptions(
+        chartValueStyle: TextStyle(fontSize: 20, color: Colors.black),
+      ),
+      legendOptions: const LegendOptions(
+        legendShape: BoxShape.circle,
+        legendTextStyle: TextStyle(fontSize: 20),
+        legendPosition: LegendPosition.top,
+        showLegendsInRow: true,
+      ),
+      colorList: colorList,
+      chartRadius: MediaQuery.of(context).size.width * 0.73,
+    );
   }
 
   @override
@@ -63,114 +146,139 @@ class _StatisticsState extends State<Statistics> {
         title: const Text("Статистика"),
       ),
       body: Container(
-        padding: const EdgeInsets.all(10),
+        padding: const EdgeInsets.all(8),
         child:
         Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-              Row(
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.only(right: 20),
-                    child: Text("C: ",
-                      style:  TextStyle(
-                         fontWeight: FontWeight.bold,
-                          fontSize: 20
-                       ),
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.only(right: 10),
-                    child: Text(appDateFormat.format(startDate),
-                        style: const TextStyle(fontSize: 20),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(right: 20),
-                    child: ElevatedButton(onPressed: pickStartDate,
-                        child: const Icon(
-                            Icons.date_range_outlined
-                        ))
-                  )
-                ],
-              ),
-              Row(
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.only(right: 10),
-                    child: Text("По: ",
-                      style:  TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20
-                      ),
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.only(right: 8),
-                    child: Text(appDateFormat.format(endDate),
-                      style: const TextStyle(fontSize: 20),
-                    ),
-                  ),
-                  Padding(
-                      padding: const EdgeInsets.only(right: 20),
-                      child: ElevatedButton(onPressed: pickEndDate,
-                          child: const Icon(
-                              Icons.date_range_outlined
-                          ))
-                  )
-                ],
-              ),
-              ElevatedButton(
-                  onPressed: getStatistics,
-                  child: const Padding(
-                    padding: EdgeInsets.all(10),
-                    child: Text("Поиск статистики",
-                      style:  TextStyle(
-                          fontSize: 20
-                      ),
-                    ),
-                  )
-              ),
-            totalStatistics.isEmpty ?
-                const Text("Нет данных") :
-                Expanded(
-                    child: PieChart(
-                      dataMap: totalStatistics,
-                      chartValuesOptions: const ChartValuesOptions(
-                        chartValueStyle: TextStyle(fontSize: 20, color: Colors.black),
-                      ),
-                      legendOptions: const LegendOptions(
-                        legendShape: BoxShape.circle,
-                        legendTextStyle: TextStyle(fontSize: 20),
-                        legendPosition: LegendPosition.top,
-                        showLegendsInRow: true,
-                      ),
-                      colorList: colorList,
-                      chartRadius: MediaQuery.of(context).size.width * 0.73,
-                    ))
-                // DefaultTabController(
-                //     length: 3,
-                //     child: Column (
-                //       children: const [
-                //         TabBar(
-                //             tabs: [
-                //               Tab(text: "Общая статистика"),
-                //               Tab(text: "По видам животных"),
-                //               Tab(text: "По муниципалитетам"),
-                //             ]
-                //         ),
-                //         TabBarView(
-                //             children: [
-                //               Center(child: Text("O")),
-                //               Center(child: Text("В")),
-                //               Center(child: Text("М")),
-                //             ]
-                //         )
-                //       ],
-                //     )
-                // )
-            ],
+             Padding(
+                 padding: const EdgeInsets.symmetric(vertical: 10),
+                 child: Row(
+                   mainAxisAlignment: MainAxisAlignment.spaceAround,
+                   children: [
+                     Row(
+                         children: [
+                           const Padding(
+                             padding: EdgeInsets.only(right: 8),
+                             child: Text("C: ",
+                               style:  TextStyle(
+                                   fontWeight: FontWeight.bold,
+                                   fontSize: 14
+                               ),
+                             ),
+                           ),
+                           GestureDetector(
+                               onTap: pickStartDate,
+                               child: AbsorbPointer(
+                                 child: IntrinsicWidth(
+                                   child: TextFormField(
+                                       readOnly: true,
+                                       controller: _startDateEditingController,
+                                       style: const TextStyle(fontSize: 14),
+                                       decoration: const InputDecoration(
+                                           border: OutlineInputBorder(),
+                                           contentPadding:
+                                           EdgeInsets.symmetric(
+                                               vertical: 2,
+                                               horizontal: 20)
+                                       )
+                                   ),
+                                 ),
+                               )
+                           ),
+                         ]
+                     ),
 
+                     Row(
+                       children: [
+                         const Padding(
+                           padding: EdgeInsets.only(right: 8),
+                           child: Text("По: ",
+                             style:  TextStyle(
+                                 fontWeight: FontWeight.bold,
+                                 fontSize: 14
+                             ),
+                           ),
+                         ),
+                         GestureDetector(
+                             onTap: pickEndDate,
+                             child: AbsorbPointer(
+                               child: IntrinsicWidth(
+                                 child: TextFormField(
+                                     readOnly: true,
+                                     controller: _endDateEditingController,
+                                     style: const TextStyle(fontSize: 14),
+                                     decoration: const InputDecoration(
+                                         border: OutlineInputBorder(),
+                                         contentPadding:
+                                         EdgeInsets.symmetric(
+                                             vertical: 5,
+                                             horizontal: 20)
+                                     )
+                                 ),
+                               ),
+                             )
+                         ),
+                       ],
+                     )
+                   ],
+                 ),
+             ),
+
+            _statisticsFrame == null ?
+                const Text("Нет данных") :
+                DefaultTabController(
+                    length: widget.user.role == User.catcher ? 2 : 4,
+                    child: Column (
+                      children: [
+                        TabBar(
+                            isScrollable: true,
+                            indicatorColor: Theme.of(context).colorScheme.primary,
+                            indicatorWeight: 5,
+                            labelStyle: const TextStyle(fontSize: 18),
+                            labelColor: Colors.black,
+                            tabs: [
+                              const Tab(text: "Общая статистика"),
+                              const Tab(text: "По видам животных"),
+                              if (widget.user.role == User.comitee)
+                                  const Tab(text: "По муниципалитетам"),
+                              if (widget.user.role == User.comitee)
+                                const Tab(text: "Детальная статистика"),
+                            ]
+                        ),
+                        SizedBox(
+                          // TODO: scrollable tab bar view
+                            height: 400,
+                            child: TabBarView(
+                                children: [
+                                  // PieChart(
+                                  //       dataMap: totalStatistics,
+                                  //       chartValuesOptions: const ChartValuesOptions(
+                                  //         chartValueStyle: TextStyle(fontSize: 20, color: Colors.black),
+                                  //       ),
+                                  //       legendOptions: const LegendOptions(
+                                  //         legendShape: BoxShape.circle,
+                                  //         legendTextStyle: TextStyle(fontSize: 20),
+                                  //         legendPosition: LegendPosition.top,
+                                  //         showLegendsInRow: true,
+                                  //       ),
+                                  //       colorList: colorList,
+                                  //       chartRadius: MediaQuery.of(context).size.width * 0.73,
+                                  //     ),
+                                  Center(child: createSummaryPie2()),
+                                  Center(child: GroupedStatisticsView(map: _statisticsFrame!.byKind)),
+                                  if (widget.user.role == User.comitee)
+                                        Center(child: GroupedStatisticsView(map: _statisticsFrame!.byMunicipality!)),
+                                  if (widget.user.role == User.comitee)
+                                       Center(child: DetailedStatisticsView(
+                                                  callback: getDetailedStatistics)),
+                                ]
+                            )
+                        )
+                      ],
+                    )
+                )
+            ],
         ),
 
       )
