@@ -18,7 +18,9 @@ import 'package:dog_catch/data/repository/EventInfoSaveRepository.dart';
 import 'package:dog_catch/data/repository/ImageRepository.dart';
 import 'package:dog_catch/data/repository/MunicipalityRepository.dart';
 import 'package:dog_catch/data/repository/RaidRepository.dart';
+import 'package:dog_catch/utils/CustomCard.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 
 class AnimalCardAdd extends StatefulWidget {
@@ -31,28 +33,37 @@ class AnimalCardAdd extends StatefulWidget {
 }
 
 class _AnimalCardAddState extends State<AnimalCardAdd> {
-  int kind = 1;
-  int raidN = 1;
-  int catchClaimN = 1;
-  int releaseClaimN = 1;
-  String? sex = AnimalCard.sexAlias;
-  int municapality = 1;
+  //Variables
+  int? kind;
+  int? raidN;
+  int? catchClaimN;
+  int? releaseClaimN;
+  int? municipality;
+  String? sex = "M";
+  String validateMessage = "";
+  bool isReleased = false;
 
+  //Files
   File? profileImage;
   File? catchVideo;
   File? releaseVideo;
-  late List<XFile> pictures = [];
+  List<XFile>? pictures = [];
 
-  DateTime catchDate = DateTime.now();
-  DateTime releaseDate = DateTime.now();
+  //Lists
+  List<AnimalKind>? animalKinds;
+  List<Municipality>? municipalities;
+  List<Raid>? raids;
+  List<Claim>? catchClaims;
+  List<Claim>? releaseClaims;
 
-  //for AnimalCardSave
+  //Text controllers
   TextEditingController chipController = TextEditingController();
   TextEditingController badgeController = TextEditingController();
   TextEditingController infoController = TextEditingController();
+  TextEditingController catchAddressController = TextEditingController();
+  TextEditingController releaseAddressController = TextEditingController();
 
-  TextEditingController addressController = TextEditingController();
-
+  //Repositories
   AnimalCardSaveRepository animalCardSaveRepository =
       AnimalCardSaveRepository();
   ImageRepository imageRepository = ImageRepository();
@@ -62,16 +73,20 @@ class _AnimalCardAddState extends State<AnimalCardAdd> {
   ClaimRepository claimRepository = ClaimRepository();
   AnimalKindRepository animalKindRepository = AnimalKindRepository();
 
-  pickVideoForEvent() async {
+  pickVideoForEvent(String fileName) async {
     XFile? pickedVideo = await ImagePicker().pickVideo(
       source: ImageSource.gallery,
       maxDuration: Duration(seconds: 21),
     );
-    if (pickedVideo != null) {
-      setState(() {
-        catchVideo = File(pickedVideo.path);
-      });
-    }
+    setState(() {
+      if (pickedVideo != null) {
+        if (fileName == "catch") {
+          catchVideo = File(pickedVideo.path);
+        } else if (fileName == "release") {
+          releaseVideo = File(pickedVideo.path);
+        }
+      }
+    });
   }
 
   pickProfileImage() async {
@@ -94,70 +109,104 @@ class _AnimalCardAddState extends State<AnimalCardAdd> {
     );
     if (pickedFiles != null) {
       setState(() {
-        for (XFile pickedFile in pickedFiles) {
-          pictures.add(pickedFile);
-        }
+        pictures = pickedFiles;
       });
     }
   }
 
   save() async {
-    int profileImageId = await imageRepository.create(
-        AnimalImage(File(profileImage!.path)), widget.user);
-
     List<int> picturesId = [];
 
-    for (final picture in pictures) {
-      picturesId.add(await imageRepository.create(
-          AnimalImage(File(picture.path)), widget.user));
-    }
+    if (profileImage == null || pictures == null) {
+      setState(() {
+        validateMessage = "Добавьте фотографии животного";
+      });
+    } else if (infoController.text == "" || catchAddressController.text == "") {
+      setState(() {
+        validateMessage = "Заполните обязательные поля";
+      });
+    } else if (catchVideo == null) {
+      setState(() {
+        validateMessage = "Добавьте видео отлова животного";
+      });
+    } else if (isReleased && releaseVideo == null) {
+      setState(() {
+        validateMessage = "Добавьте видео выпуска животного";
+      });
+    } else if (isReleased && releaseAddressController.text == "") {
+      setState(() {
+        validateMessage = "Заполните обязательные поля";
+      });
+    } else {
+      setState(() {
+        validateMessage = "";
+      });
+      try {
+        int profileImageId = await imageRepository.create(
+            AnimalImage(File(profileImage!.path)), widget.user);
+        for (final picture in pictures!) {
+          picturesId.add(await imageRepository.create(
+              AnimalImage(File(picture.path)), widget.user));
+        }
 
-    EventInfoSave catchEventInfoSave = EventInfoSave(
-        adress: addressController.text.toString(),
-        claimId: catchClaimN,
-        lat: 68,
-        long: 34,
-        video: File(catchVideo!.path),
-        raidId: raidN);
+        EventInfoSave catchEventInfoSave = EventInfoSave(
+            adress: catchAddressController.text.toString(),
+            claimId: catchClaimN!,
+            lat: 68,
+            long: 34,
+            video: File(catchVideo!.path),
+            raidId: raidN);
 
-    int catchId =
-        await eventInfoSaveRepository.create(catchEventInfoSave, widget.user);
+        int catchId = await eventInfoSaveRepository.create(
+            catchEventInfoSave, widget.user);
 
-    //TODO add bool checker
-    EventInfoSave releaseEventInfoSave = EventInfoSave(
-      adress: addressController.text,
-      claimId: releaseClaimN,
-      lat: 68,
-      long: 34,
-      video: File(catchVideo!.path),
-    );
-
-    int releaseId =
-        await eventInfoSaveRepository.create(releaseEventInfoSave, widget.user);
-
-    AnimalCardSave animalCardSave = AnimalCardSave(
-        pickedProfilePicId: profileImageId,
-        images: picturesId,
-        kindId: kind,
-        sex: sex!,
-        info: infoController.text,
-        municipalityId: municapality,
-        catchInfoId: catchId,
-        badgeN: badgeController.text,
-        chipN: chipController.text,
+        AnimalCardSave animalCardSave = AnimalCardSave(
+          pickedProfilePicId: profileImageId,
+          images: picturesId,
+          kindId: kind!,
+          sex: sex!,
+          info: infoController.text,
+          municipalityId: municipality!,
+          catchInfoId: catchId,
+          badgeN: badgeController.text,
+          chipN: chipController.text,
         );
 
-    animalCardSaveRepository.create(animalCardSave, widget.user);
+        if (isReleased) {
+          EventInfoSave releaseEventInfoSave = EventInfoSave(
+            adress: releaseAddressController.text,
+            claimId: releaseClaimN!,
+            lat: 68,
+            long: 34,
+            video: File(releaseVideo!.path),
+          );
+
+          animalCardSave.releaseInfoId = await eventInfoSaveRepository.create(
+              releaseEventInfoSave, widget.user);
+        }
+
+        animalCardSaveRepository.create(animalCardSave, widget.user);
+      } catch (e) {
+        setState(() {
+          validateMessage = "Что - то пошло не так";
+        });
+      }
+    }
   }
 
   getData() async {
     animalKinds = await animalKindRepository.getAll();
-    municapalitys = await municipalityRepository.getAll();
+    kind = animalKinds?.first.id;
+    municipalities = await municipalityRepository.getAll();
+    municipality = municipalities?.first.id;
     raids = await raidRepository.getAll(user: widget.user);
+    raidN = raids?.first.raidN;
     catchClaims = await claimRepository
         .getAll(user: widget.user, queryParams: {"claim_type": "O"});
+    catchClaimN = catchClaims?.first.claimN;
     releaseClaims = await claimRepository
         .getAll(user: widget.user, queryParams: {"claim_type": "V"});
+    releaseClaimN = releaseClaims?.first.claimN;
 
     setState(() {});
   }
@@ -168,12 +217,6 @@ class _AnimalCardAddState extends State<AnimalCardAdd> {
     super.initState();
   }
 
-  List<AnimalKind>? animalKinds;
-  List<Municipality>? municapalitys;
-  List<Raid>? raids;
-  List<Claim>? catchClaims;
-  List<Claim>? releaseClaims;
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -182,141 +225,353 @@ class _AnimalCardAddState extends State<AnimalCardAdd> {
       ),
       body: Center(
         child: SingleChildScrollView(
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                municapalitys != null
-                    ? DropdownButton(
-                        focusColor: Theme.of(context).colorScheme.primary,
-                        items: municapalitys!
-                            .map((e) => DropdownMenuItem(
-                                value: e.id, child: Text(e.name)))
-                            .toList(),
-                        onChanged: (int? value) {
-                          setState(() {
-                            municapality = value!;
-                          });
-                        },
-                        value: municapality,
-                      )
-                    : Text("Не работает"),
-                DropdownButton(
-                  focusColor: Theme.of(context).colorScheme.primary,
-                  items: const [
-                    DropdownMenuItem(
-                        value: AnimalCard.sexAlias,
-                        child: Text(AnimalCard.sexAlias)),
-                    DropdownMenuItem(value: "M", child: Text("Мужской")),
-                    DropdownMenuItem(value: "F", child: Text("Женский"))
-                  ],
-                  onChanged: (String? value) {
-                    setState(() {
-                      sex = value;
-                    });
-                  },
-                  value: sex,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              //Main information block
+              CustomCard(
+                  title: "Основная информация",
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Visibility(
+                            visible: municipalities != null,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(AnimalCard.municipalityAlias),
+                                DropdownButton(
+                                  items: municipalities
+                                      ?.map((e) => DropdownMenuItem(
+                                          value: e.id, child: Text(e.name)))
+                                      .toList(),
+                                  onChanged: (int? value) {
+                                    setState(() {
+                                      municipality = value!;
+                                    });
+                                  },
+                                  value: municipality,
+                                ),
+                              ],
+                            )),
+                        Visibility(
+                          visible: animalKinds != null,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(AnimalCard.sexAlias),
+                              DropdownButton(
+                                focusColor:
+                                    Theme.of(context).colorScheme.primary,
+                                items: const [
+                                  DropdownMenuItem(
+                                      value: "M", child: Text("Самец")),
+                                  DropdownMenuItem(
+                                      value: "F", child: Text("Самка"))
+                                ],
+                                onChanged: (String? value) {
+                                  setState(() {
+                                    sex = value;
+                                  });
+                                },
+                                value: sex,
+                              ),
+                            ],
+                          ),
+                        ),
+                        Visibility(
+                            visible: animalKinds != null,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(AnimalCard.kindAlias),
+                                DropdownButton(
+                                  focusColor:
+                                      Theme.of(context).colorScheme.primary,
+                                  items: animalKinds
+                                      ?.map((e) => DropdownMenuItem(
+                                          value: e.id, child: Text(e.kind)))
+                                      .toList(),
+                                  onChanged: (int? value) {
+                                    setState(() {
+                                      kind = value!;
+                                    });
+                                  },
+                                  value: kind,
+                                ),
+                              ],
+                            )),
+                        SizedBox(
+                          width: double.maxFinite,
+                          child: ElevatedButton(
+                              onPressed: pickProfileImage,
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Text(
+                                  "Изображение профиля",
+                                  textAlign: TextAlign.center,
+                                  style:
+                                      Theme.of(context).textTheme.displayMedium,
+                                ),
+                              )),
+                        ),
+                        profileImage != null
+                            ? Container(
+                                width: 100,
+                                height: 100,
+                                decoration: BoxDecoration(
+                                    border: Border.all(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .primary,
+                                        width: 4),
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(4))),
+                                child: Image.file(
+                                  profileImage!,
+                                  fit: BoxFit.cover,
+                                ),
+                              )
+                            : SizedBox(),
+                        SizedBox(
+                          width: double.maxFinite,
+                          child: ElevatedButton(
+                              onPressed: pickAdditionalImages,
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Text(
+                                  "Дополнительные изображения",
+                                  textAlign: TextAlign.center,
+                                  style:
+                                      Theme.of(context).textTheme.displayMedium,
+                                ),
+                              )),
+                        ),
+                        pictures!.isNotEmpty
+                            ? Flexible(
+                                child: SizedBox(
+                                height: 100,
+                                child: ListView.builder(
+                                    itemCount: pictures!.length,
+                                    scrollDirection: Axis.horizontal,
+                                    itemBuilder: (context, index) {
+                                      return Container(
+                                        margin:
+                                            EdgeInsets.symmetric(horizontal: 2),
+                                        width: 100,
+                                        height: 100,
+                                        decoration: BoxDecoration(
+                                            border: Border.all(
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .primary,
+                                                width: 4),
+                                            borderRadius: BorderRadius.all(
+                                                Radius.circular(4))),
+                                        child: Image.file(
+                                          File(pictures![index].path),
+                                          fit: BoxFit.cover,
+                                        ),
+                                      );
+                                    }),
+                              ))
+                            : SizedBox(),
+                        TextField(
+                          controller: chipController,
+                          inputFormatters: <TextInputFormatter>[
+                            FilteringTextInputFormatter.digitsOnly
+                          ],
+                          decoration: InputDecoration(
+                              label: Text(
+                                  AnimalCard.chipAlias + " (Необязательно)")),
+                        ),
+                        TextField(
+                          controller: badgeController,
+                          inputFormatters: <TextInputFormatter>[
+                            FilteringTextInputFormatter.digitsOnly
+                          ],
+                          decoration: InputDecoration(
+                              label: Text(
+                                  AnimalCard.badgeAlias + " (Необязательно)")),
+                        ),
+                        TextField(
+                          controller: infoController,
+                          decoration: InputDecoration(
+                              label: Text(AnimalCard.infoAlias)),
+                        ),
+                      ],
+                    ),
+                  )),
+
+              //Catch information block
+              CustomCard(
+                  title: "Информация об отлове",
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                    child: Column(
+                      children: [
+                        TextField(
+                          controller: catchAddressController,
+                          decoration: InputDecoration(
+                              label: Text(
+                                  EventInfo.adressAlias + " (Улица, № дома)")),
+                        ),
+                        Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text("Рейд"),
+                              Visibility(
+                                  visible: raids != null,
+                                  replacement: SizedBox(),
+                                  child: DropdownButton(
+                                    focusColor:
+                                        Theme.of(context).colorScheme.primary,
+                                    items: raids
+                                        ?.map((e) => DropdownMenuItem(
+                                            value: e.raidN,
+                                            child: Text(e.toString())))
+                                        .toList(),
+                                    onChanged: (int? value) {
+                                      setState(() {
+                                        raidN = value;
+                                      });
+                                    },
+                                    value: raidN,
+                                  )),
+                            ]),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text("Заявка на отлов"),
+                            Visibility(
+                                visible: catchClaims != null,
+                                child: DropdownButton(
+                                  focusColor:
+                                      Theme.of(context).colorScheme.primary,
+                                  items: catchClaims
+                                      ?.map((e) => DropdownMenuItem(
+                                          value: e.claimN,
+                                          child: Text(e.toString())))
+                                      .toList(),
+                                  onChanged: (int? value) {
+                                    setState(() {
+                                      catchClaimN = value!;
+                                    });
+                                  },
+                                  value: catchClaimN,
+                                )),
+                          ],
+                        ),
+                        SizedBox(
+                          width: double.maxFinite,
+                          child: ElevatedButton(
+                              onPressed: () => pickVideoForEvent("catch"),
+                              child: Text(
+                                "Выберите видео отлова",
+                                style:
+                                    Theme.of(context).textTheme.displayMedium,
+                              )),
+                        ),
+                        catchVideo != null
+                            ? Text(catchVideo.toString().substring(
+                                catchVideo.toString().lastIndexOf("r") + 1,
+                                catchVideo.toString().length - 1))
+                            : SizedBox()
+                      ],
+                    ),
+                  )),
+
+              //isReleased controller
+              CheckboxListTile(
+                value: isReleased,
+                activeColor: Theme.of(context).colorScheme.secondary,
+                checkColor: Theme.of(context).colorScheme.primary,
+                onChanged: (value) => setState(() {
+                  isReleased = value!;
+                }),
+                title: Text("Заполнить информацию о выпуске"),
+              ),
+              //Release information block
+              Visibility(
+                  child: Visibility(
+                visible: isReleased,
+                child: CustomCard(
+                  title: "Информация о выпуске",
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                    child: Column(
+                      children: [
+                        TextField(
+                          controller: catchAddressController,
+                          decoration: InputDecoration(
+                              label: Text(
+                                  EventInfo.adressAlias + " (Улица, № дома)")),
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text("Заявка на выпуск"),
+                            Visibility(
+                                visible: releaseClaims != null,
+                                child: DropdownButton(
+                                  focusColor:
+                                      Theme.of(context).colorScheme.primary,
+                                  items: releaseClaims
+                                      ?.map((e) => DropdownMenuItem(
+                                          value: e.claimN,
+                                          child: Text(e.toString())))
+                                      .toList(),
+                                  onChanged: (int? value) {
+                                    setState(() {
+                                      releaseClaimN = value!;
+                                    });
+                                  },
+                                  value: releaseClaimN,
+                                )),
+                          ],
+                        ),
+                        SizedBox(
+                          width: double.maxFinite,
+                          child: ElevatedButton(
+                              onPressed: () => pickVideoForEvent("release"),
+                              child: Text(
+                                "Выберите видео выпуска",
+                                style:
+                                    Theme.of(context).textTheme.displayMedium,
+                              )),
+                        ),
+                        releaseVideo != null
+                            ? Text(releaseVideo.toString().substring(
+                                releaseVideo.toString().lastIndexOf("r") + 1,
+                                catchVideo.toString().length - 1))
+                            : SizedBox()
+                      ],
+                    ),
+                  ),
                 ),
-                animalKinds != null
-                    ? DropdownButton(
-                        focusColor: Theme.of(context).colorScheme.primary,
-                        items: animalKinds!
-                            .map((e) => DropdownMenuItem(
-                                value: e.id, child: Text(e.kind)))
-                            .toList(),
-                        onChanged: (int? value) {
-                          setState(() {
-                            kind = value!;
-                          });
-                        },
-                        value: kind,
-                      )
-                    : Text("Не работает"),
-                ElevatedButton(
-                    onPressed: pickProfileImage,
-                    child: const Text("Выбирите изображение профиля")),
-                ElevatedButton(
-                    onPressed: pickAdditionalImages,
-                    child: const Text("Выбирите дополнительные изображения")),
-                TextField(
-                  controller: chipController,
-                  decoration:
-                      InputDecoration(label: Text(AnimalCard.chipAlias)),
-                ),
-                TextField(
-                  controller: badgeController,
-                  decoration:
-                      InputDecoration(label: Text(AnimalCard.badgeAlias)),
-                ),
-                TextField(
-                  controller: infoController,
-                  decoration:
-                      InputDecoration(label: Text(AnimalCard.infoAlias)),
-                ),
-                Center(child: Text("Информация об отлове")),
-                TextField(
-                  controller: addressController,
-                  decoration:
-                      InputDecoration(label: Text(EventInfo.adressAlias)),
-                ),
-                raids != null
-                    ? DropdownButton(
-                        focusColor: Theme.of(context).colorScheme.primary,
-                        items: raids!
-                            .map((e) => DropdownMenuItem(
-                                value: e.raidN, child: Text(e.toString())))
-                            .toList(),
-                        onChanged: (int? value) {
-                          setState(() {
-                            raidN = value!;
-                          });
-                        },
-                        value: raidN,
-                      )
-                    : Text("Не работает"),
-                catchClaims != null
-                    ? DropdownButton(
-                        focusColor: Theme.of(context).colorScheme.primary,
-                        items: catchClaims!
-                            .map((e) => DropdownMenuItem(
-                                value: e.claimN, child: Text(e.toString())))
-                            .toList(),
-                        onChanged: (int? value) {
-                          setState(() {
-                            catchClaimN = value!;
-                          });
-                        },
-                        value: catchClaimN,
-                      )
-                    : Text("Не работает"),
-                Center(child: Text("Информация о выпуске")),
-                releaseClaims != null
-                    ? DropdownButton(
-                        focusColor: Theme.of(context).colorScheme.primary,
-                        items: releaseClaims!
-                            .map((e) => DropdownMenuItem(
-                                value: e.claimN, child: Text(e.toString())))
-                            .toList(),
-                        onChanged: (int? value) {
-                          setState(() {
-                            releaseClaimN = value!;
-                          });
-                        },
-                        value: releaseClaimN,
-                      )
-                    : Text("Не работает"),
-                ElevatedButton(
-                    onPressed: pickVideoForEvent,
-                    child: const Text("Выберите видео")),
-                Center(
-                    child: Container(
-                        margin: EdgeInsets.only(top: 10),
-                        child: ElevatedButton(
-                            onPressed: save, child: Text("Добавить"))))
-              ],
-            ),
+              )),
+              Text(
+                validateMessage,
+                style: TextStyle(color: Colors.redAccent),
+              ),
+              Center(
+                  child: Container(
+                      margin: EdgeInsets.only(bottom: 10),
+                      child: ElevatedButton(
+                          onPressed: save,
+                          child: Text(
+                            "Добавить",
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context)
+                                .textTheme
+                                .displayMedium
+                                ?.copyWith(fontSize: 20),
+                          ))))
+            ],
           ),
         ),
       ),

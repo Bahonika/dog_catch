@@ -12,7 +12,7 @@ class AnimalCardSave implements Postable{
   final String info;
   final int municipalityId;
   final int catchInfoId;
-  final int? releaseInfoId;
+  int? releaseInfoId;
 
 
   AnimalCardSave({

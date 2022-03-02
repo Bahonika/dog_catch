@@ -22,7 +22,7 @@ class AnimalCard implements Displayable {
   final int releaseInfo;
 
   static Sex _sexFromStr(String str) => str == "M" ? Sex.male : Sex.female;
-  String sexToStr() => sex == Sex.male ? "м" : "ж";
+  String sexToStr() => sex == Sex.male ? "Самец" : "Самка";
 
   static Status _statusFromStr(String str) =>
       str == "Отловлено" ? Status.catched : Status.released;

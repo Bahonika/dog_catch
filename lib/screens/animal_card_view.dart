@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 
 import '../data/entities/abstract/Displayable.dart';
 import '../data/repository/abstract/Api.dart';
+import 'package:video_player/video_player.dart';
 
 class AnimalCardView extends StatefulWidget {
   const AnimalCardView({Key? key, required this.index, required this.data})
@@ -19,6 +20,8 @@ class AnimalCardView extends StatefulWidget {
 }
 
 class _AnimalCardViewState extends State<AnimalCardView> {
+  VideoPlayerController? controller;
+
   int _currentIndex = 0;
   int _currentImage = 0;
 
@@ -26,21 +29,20 @@ class _AnimalCardViewState extends State<AnimalCardView> {
   late PageController imageController;
 
   late AnimalCard animalCard;
-  var catchData;
+  EventInfo? catchData;
   EventInfo? releaseData;
+
 
   final EventInfoRepository eventInfoRepository = EventInfoRepository();
 
   void uploadEventInfos(AnimalCard card) async{
-    var catchI = await eventInfoRepository.getById(card.catchInfo);
-    EventInfo? releaseI;
+    catchData = await eventInfoRepository.getById(card.catchInfo);
     if(card.releaseInfo != -1){
-      releaseI = await eventInfoRepository.getById(card.releaseInfo);
+      releaseData = await eventInfoRepository.getById(card.releaseInfo);
     }
     setState(() {
-      catchData = catchI;
-      releaseData = releaseI;
     });
+
   }
 
   @override
@@ -65,6 +67,7 @@ class _AnimalCardViewState extends State<AnimalCardView> {
   Widget getDataTable(String title, Displayable? displayable){
     List<DataRow> rows = [];
     displayable?.getFields().forEach((key, value) {
+
       rows.add(DataRow(
               cells: <DataCell>[
                 DataCell(
@@ -217,19 +220,10 @@ class _AnimalCardViewState extends State<AnimalCardView> {
                               ),
                             ]),
                       ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 20),
-                        child: getDataTable("Основная информация", animalCard),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 20),
-                        child: getDataTable("Информация об отлове", catchData),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 20),
-                        child: getDataTable("Информация о выпуске", releaseData),
-                      ),
-                      const SizedBox(height: 20)
+                      getDataTable("Основная информация", animalCard),
+                      getDataTable("Информация об отлове", catchData),
+                      getDataTable("Информация о выпуске", releaseData),
+                      const SizedBox(height: 15)
                     ],
 
                   ),
