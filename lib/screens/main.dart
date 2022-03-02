@@ -25,6 +25,12 @@ class MyApp extends StatelessWidget {
       title: 'Отлов животных',
       theme: ThemeData(
           scaffoldBackgroundColor: const Color.fromRGBO(230, 230, 230, 1),
+          textTheme: const TextTheme(
+            displayMedium: TextStyle(
+              fontSize: 16,
+              color: Colors.white
+            )
+          ),
           colorScheme: ColorScheme.fromSwatch()
               .copyWith(primary: const Color.fromRGBO(88, 60, 93, 1))
               .copyWith(secondary: const Color.fromRGBO(209, 185, 29, 1))),
