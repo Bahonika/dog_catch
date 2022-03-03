@@ -1,12 +1,12 @@
-import 'package:dog_catch/data/entities/DateFormats.dart';
-import 'package:dog_catch/data/entities/StatisticsFrame.dart';
-import 'package:dog_catch/data/entities/User.dart';
-import 'package:dog_catch/data/repository/abstract/Api.dart';
+import 'package:dog_catch/data/entities/date_formats.dart';
+import 'package:dog_catch/data/entities/statistics_frame.dart';
+import 'package:dog_catch/data/entities/user.dart';
+import 'package:dog_catch/data/repository/abstract/api.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert' as convert;
 import "dart:io";
 
-import '../entities/StatisticsInfo.dart';
+import '../entities/statistics_info.dart';
 
 class StatisticsRepository extends Api{
 

@@ -1,5 +1,5 @@
-import '../entities/Raid.dart';
-import 'abstract/PostUpdateRepository.dart';
+import '../entities/raid.dart';
+import 'abstract/post_update_repository.dart';
 
 class RaidRepository extends PostUpdateRepository<Raid>{
 

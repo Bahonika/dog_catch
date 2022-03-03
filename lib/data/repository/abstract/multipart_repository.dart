@@ -1,10 +1,10 @@
 import 'dart:io';
 
-import 'package:dog_catch/data/entities/abstract/PostableMultipart.dart';
-import 'package:dog_catch/data/repository/abstract/PostUpdateRepository.dart';
+import 'package:dog_catch/data/entities/abstract/postable_multipart.dart';
+import 'package:dog_catch/data/repository/abstract/post_update_repository.dart';
 
-import '../../entities/User.dart';
-import 'Api.dart';
+import '../../entities/user.dart';
+import 'api.dart';
 import 'package:dio/dio.dart';
 import 'package:path/path.dart';
 

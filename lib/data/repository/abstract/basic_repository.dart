@@ -1,10 +1,10 @@
 import 'dart:io';
 
-import 'package:dog_catch/data/repository/abstract/Api.dart';
+import 'package:dog_catch/data/repository/abstract/api.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert' as convert;
 
-import '../../entities/User.dart';
+import '../../entities/user.dart';
 
 abstract class BasicRepository<T> extends Api{
 

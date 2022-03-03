@@ -1,15 +1,16 @@
-import 'package:dog_catch/data/repository/AnimalCardRepository.dart';
+import 'package:dog_catch/data/repository/animal_card_repository.dart';
 import 'package:dog_catch/screens/animal_card_add.dart';
 import 'package:dog_catch/screens/animal_card_view.dart';
 import 'package:dog_catch/screens/login.dart';
 import 'package:dog_catch/screens/statistics.dart';
+import 'package:dog_catch/utils/spin_kit.dart';
 import 'package:flutter/material.dart';
-import 'package:dog_catch/data/entities/AnimalCard.dart';
+import 'package:dog_catch/data/entities/animal_card.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../data/entities/Status.dart';
-import '../data/entities/User.dart';
-import '../data/repository/abstract/Api.dart';
+import '../data/entities/status.dart';
+import '../data/entities/user.dart';
+import '../data/repository/abstract/api.dart';
 
 class Gallery extends StatefulWidget {
   const Gallery({Key? key, this.user}) : super(key: key);
@@ -21,7 +22,6 @@ class Gallery extends StatefulWidget {
 }
 
 class _GalleryState extends State<Gallery> with SingleTickerProviderStateMixin {
-  late AnimationController animation;
   // ignore: prefer_typing_uninitialized_variables
   var animalCardList;
 
@@ -37,27 +37,8 @@ class _GalleryState extends State<Gallery> with SingleTickerProviderStateMixin {
     var list = await repository.getAll(queryParams: queryParams);
     var sharedPrefs = await SharedPreferences.getInstance();
     user = widget.user ?? await restoreFromSharedPrefs(sharedPrefs);
-
-    setState(() {
-      animalCardList = list;
-    });
-  }
-
-  Widget spinKit() {
-    return RotationTransition(
-      turns: Tween(begin: 0.0, end: 1.0).animate(animation),
-      child: Container(
-        height: 50,
-        width: 50,
-        color: Theme.of(context).colorScheme.secondary,
-        padding: const EdgeInsets.only(left: 15, bottom: 15),
-        child: Container(
-          height: 15,
-          width: 15,
-          color: Theme.of(context).colorScheme.primary,
-        ),
-      ),
-    );
+    animalCardList = list;
+    setState(() {});
   }
 
   void logout() async {
@@ -73,13 +54,7 @@ class _GalleryState extends State<Gallery> with SingleTickerProviderStateMixin {
 
   @override
   void initState() {
-    animation = AnimationController(
-      duration: const Duration(milliseconds: 5000),
-      vsync: this,
-    );
     user = widget.user!;
-    //animation start
-    animation.repeat();
     chipController = TextEditingController();
     badgeController = TextEditingController();
     getData(queryParamsForFilter);
@@ -88,7 +63,6 @@ class _GalleryState extends State<Gallery> with SingleTickerProviderStateMixin {
 
   @override
   void dispose() {
-    animation.dispose();
     chipController.dispose();
     badgeController.dispose();
     super.dispose();
@@ -103,7 +77,6 @@ class _GalleryState extends State<Gallery> with SingleTickerProviderStateMixin {
   }
 
   // shows dialog with search settings
-
   void showSearchSettings(BuildContext context) {
     showDialog(
         context: context,
@@ -144,7 +117,8 @@ class _GalleryState extends State<Gallery> with SingleTickerProviderStateMixin {
                               onPressed: () => {
                                 setState(() {
                                   if (chipController.text != "") {
-                                    queryParamsForSearch["chip"] = chipController.text;
+                                    queryParamsForSearch["chip"] =
+                                        chipController.text;
                                     getData(queryParamsForSearch);
                                     Navigator.pop(context);
                                   }
@@ -175,16 +149,15 @@ class _GalleryState extends State<Gallery> with SingleTickerProviderStateMixin {
                         margin: const EdgeInsets.only(top: 20),
                         child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                                primary:
-                                Theme.of(context).colorScheme.primary),
+                                primary: Theme.of(context).colorScheme.primary),
                             onPressed: () => setState(() {
-                              if (queryParamsForSearch.isNotEmpty) {
-                                queryParamsForSearch.clear();
-                              }
-                              chipController.clear();
-                              badgeController.clear();
-                              getData(queryParamsForSearch);
-                            }),
+                                  if (queryParamsForSearch.isNotEmpty) {
+                                    queryParamsForSearch.clear();
+                                  }
+                                  chipController.clear();
+                                  badgeController.clear();
+                                  getData(queryParamsForSearch);
+                                }),
                             child: const Text("Сбросить поиск")),
                       ),
                     ],
@@ -245,11 +218,14 @@ class _GalleryState extends State<Gallery> with SingleTickerProviderStateMixin {
                             child: ElevatedButton(
                                 style: ElevatedButton.styleFrom(
                                     primary: getParamColor(
-                                        queryParamsForFilter["kind_id"] == "1")),
+                                        queryParamsForFilter["kind_id"] ==
+                                            "1")),
                                 onPressed: () => setState(() {
-                                  queryParamsForFilter["kind_id"] == "1"
-                                          ? queryParamsForFilter.remove("kind_id")
-                                          : queryParamsForFilter["kind_id"] = "1";
+                                      queryParamsForFilter["kind_id"] == "1"
+                                          ? queryParamsForFilter
+                                              .remove("kind_id")
+                                          : queryParamsForFilter["kind_id"] =
+                                              "1";
                                     }),
                                 child: const Text("Собаки")),
                           ),
@@ -258,11 +234,14 @@ class _GalleryState extends State<Gallery> with SingleTickerProviderStateMixin {
                             child: ElevatedButton(
                                 style: ElevatedButton.styleFrom(
                                     primary: getParamColor(
-                                        queryParamsForFilter["kind_id"] == "2")),
+                                        queryParamsForFilter["kind_id"] ==
+                                            "2")),
                                 onPressed: () => setState(() {
-                                  queryParamsForFilter["kind_id"] == "2"
-                                          ? queryParamsForFilter.remove("kind_id")
-                                          : queryParamsForFilter["kind_id"] = "2";
+                                      queryParamsForFilter["kind_id"] == "2"
+                                          ? queryParamsForFilter
+                                              .remove("kind_id")
+                                          : queryParamsForFilter["kind_id"] =
+                                              "2";
                                     }),
                                 child: const Text("Кошки")),
                           ),
@@ -274,10 +253,10 @@ class _GalleryState extends State<Gallery> with SingleTickerProviderStateMixin {
                           margin: const EdgeInsets.only(left: 4),
                           child: ElevatedButton(
                               style: ElevatedButton.styleFrom(
-                                  primary:
-                                      getParamColor(queryParamsForFilter["sex"] == "M")),
+                                  primary: getParamColor(
+                                      queryParamsForFilter["sex"] == "M")),
                               onPressed: () => setState(() {
-                                queryParamsForFilter["sex"] == "M"
+                                    queryParamsForFilter["sex"] == "M"
                                         ? queryParamsForFilter.remove("sex")
                                         : queryParamsForFilter["sex"] = "M";
                                   }),
@@ -287,10 +266,10 @@ class _GalleryState extends State<Gallery> with SingleTickerProviderStateMixin {
                           margin: const EdgeInsets.only(left: 4),
                           child: ElevatedButton(
                               style: ElevatedButton.styleFrom(
-                                  primary:
-                                      getParamColor(queryParamsForFilter["sex"] == "F")),
+                                  primary: getParamColor(
+                                      queryParamsForFilter["sex"] == "F")),
                               onPressed: () => setState(() {
-                                queryParamsForFilter["sex"] == "F"
+                                    queryParamsForFilter["sex"] == "F"
                                         ? queryParamsForFilter.remove("sex")
                                         : queryParamsForFilter["sex"] = "F";
                                   }),
@@ -306,7 +285,7 @@ class _GalleryState extends State<Gallery> with SingleTickerProviderStateMixin {
                                   primary: getParamColor(
                                       queryParamsForFilter["status"] == "V")),
                               onPressed: () => setState(() {
-                                queryParamsForFilter["status"] == "V"
+                                    queryParamsForFilter["status"] == "V"
                                         ? queryParamsForFilter.remove("status")
                                         : queryParamsForFilter["status"] = "V";
                                   }),
@@ -319,7 +298,7 @@ class _GalleryState extends State<Gallery> with SingleTickerProviderStateMixin {
                                   primary: getParamColor(
                                       queryParamsForFilter["status"] == "O")),
                               onPressed: () => setState(() {
-                                queryParamsForFilter["status"] == "O"
+                                    queryParamsForFilter["status"] == "O"
                                         ? queryParamsForFilter.remove("status")
                                         : queryParamsForFilter["status"] = "O";
                                   }),
@@ -376,14 +355,6 @@ class _GalleryState extends State<Gallery> with SingleTickerProviderStateMixin {
   Decoration createStatusDecoration(AnimalCard animalCard) {
     return BoxDecoration(
       color: getColorForStatus(animalCard.status),
-      boxShadow: [
-        BoxShadow(
-          color: Colors.black,
-          spreadRadius: 5,
-          blurRadius: 7,
-          offset: const Offset(0, 3),
-        ),
-      ],
       border: Border(
         bottom: BorderSide(
           width: 10,
@@ -420,54 +391,74 @@ class _GalleryState extends State<Gallery> with SingleTickerProviderStateMixin {
           ? animalCardList.length != 0
               ? Stack(children: [
                   Padding(
-                    padding: const EdgeInsets.only(top: 15.0),
-                    child: GridView.count(
-                      crossAxisCount: 2,
-                      padding: EdgeInsets.all(
-                          MediaQuery.of(context).size.width * 0.05),
-                      crossAxisSpacing:
-                          MediaQuery.of(context).size.width * 0.05,
-                      mainAxisSpacing: MediaQuery.of(context).size.width * 0.05,
-                      children:
-                          List.generate(animalCardList?.length ?? 0, (index) {
-                        animation.stop();
-                        return Hero(
-                          tag: index,
-                          child: GestureDetector(
-                            onTap: () => Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => AnimalCardView(
-                                        index: index,
-                                        data: animalCardList[index]))),
-                            child: ClipRRect(
-                              borderRadius: const BorderRadius.only(
-                                topLeft: Radius.circular(25),
-                              ),
-                              child: Container(
-                                decoration: createStatusDecoration(
-                                    animalCardList[index]),
-                                height:
-                                    MediaQuery.of(context).size.width * 0.41,
-                                width: MediaQuery.of(context).size.width * 0.41,
-                                child: ClipRRect(
-                                  borderRadius: const BorderRadius.only(
-                                    bottomRight: Radius.circular(25),
-                                  ),
-                                  child: Image.network(
-                                    "https://" +
-                                        Api.siteRoot +
-                                        animalCardList[index].profileImagePath,
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        );
-                      }),
-                    ),
-                  ),
+                      padding: const EdgeInsets.only(top: 15.0),
+                      child: GridView.count(
+                          crossAxisCount: 2,
+                          padding: EdgeInsets.all(
+                              MediaQuery.of(context).size.width * 0.05),
+                          crossAxisSpacing:
+                              MediaQuery.of(context).size.width * 0.05,
+                          mainAxisSpacing:
+                              MediaQuery.of(context).size.width * 0.05,
+                          children: List.generate(animalCardList?.length ?? 0,
+                              (index) {
+                            return Hero(
+                                tag: index,
+                                child: GestureDetector(
+                                    onTap: () => Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                AnimalCardView(
+                                                    index: index,
+                                                    data: animalCardList[
+                                                        index]))),
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        borderRadius: const BorderRadius.only(
+                                          topLeft: Radius.circular(25),
+                                        ),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.grey.withOpacity(0.5),
+                                            spreadRadius: 2,
+                                            blurRadius: 7,
+                                            offset: const Offset(0, 3),
+                                          ),
+                                        ],
+                                      ),
+                                      child: ClipRRect(
+                                          borderRadius: const BorderRadius.only(
+                                            topLeft: Radius.circular(25),
+                                          ),
+                                          child: Container(
+                                              decoration:
+                                                  createStatusDecoration(
+                                                      animalCardList[index]),
+                                              height: MediaQuery.of(context)
+                                                      .size
+                                                      .width *
+                                                  0.41,
+                                              width: MediaQuery.of(context)
+                                                      .size
+                                                      .width *
+                                                  0.41,
+                                              child: ClipRRect(
+                                                borderRadius:
+                                                    const BorderRadius.only(
+                                                  bottomRight:
+                                                      Radius.circular(25),
+                                                ),
+                                                child: Image.network(
+                                                  "https://" +
+                                                      Api.siteRoot +
+                                                      animalCardList[index]
+                                                          .profileImagePath,
+                                                  fit: BoxFit.cover,
+                                                ),
+                                              ))),
+                                    )));
+                          }))),
                   Align(
                     alignment: Alignment.topCenter,
                     child: Container(
@@ -502,12 +493,15 @@ class _GalleryState extends State<Gallery> with SingleTickerProviderStateMixin {
                     ),
                   ),
                 )
-          : Center(child: spinKit()),
+          : const Center(child: SpinKit()),
       floatingActionButton: user.role == User.comitee
           ? FloatingActionButton(
-              onPressed: () => Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => Statistics(user: user as AuthorizedUser))),
-              backgroundColor: Theme.of(context).colorScheme.primary,
+              onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          Statistics(user: user as AuthorizedUser))),
+              backgroundColor: Theme.of(context).colorScheme.secondary,
               child: const Icon(Icons.stacked_line_chart),
             )
           : user.role == User.catcher
@@ -518,7 +512,8 @@ class _GalleryState extends State<Gallery> with SingleTickerProviderStateMixin {
                       onPressed: () => Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => Statistics(user: user as AuthorizedUser))),
+                              builder: (context) =>
+                                  Statistics(user: user as AuthorizedUser))),
                       backgroundColor: Theme.of(context).colorScheme.secondary,
                       child: const Icon(Icons.stacked_line_chart),
                       heroTag: "stat",

@@ -1,5 +1,5 @@
-import 'package:dog_catch/data/entities/Municipality.dart';
-import 'package:dog_catch/data/repository/abstract/BasicRepository.dart';
+import 'package:dog_catch/data/entities/municipality.dart';
+import 'package:dog_catch/data/repository/abstract/basic_repository.dart';
 
 class MunicipalityRepository extends BasicRepository<Municipality>{
 

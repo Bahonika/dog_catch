@@ -1,24 +1,24 @@
 // ignore_for_file: prefer_const_constructors
 
 import 'dart:io';
-import 'package:dog_catch/data/entities/AnimalCard.dart';
-import 'package:dog_catch/data/entities/AnimalCardSave.dart';
-import 'package:dog_catch/data/entities/AnimalImage.dart';
-import 'package:dog_catch/data/entities/AnimalKind.dart';
-import 'package:dog_catch/data/entities/Claim.dart';
-import 'package:dog_catch/data/entities/EventInfo.dart';
-import 'package:dog_catch/data/entities/EventInfoSave.dart';
-import 'package:dog_catch/data/entities/Municipality.dart';
-import 'package:dog_catch/data/entities/Raid.dart';
-import 'package:dog_catch/data/entities/User.dart';
-import 'package:dog_catch/data/repository/AnimalCardSaveRepository.dart';
-import 'package:dog_catch/data/repository/AnimalKindRepository.dart';
-import 'package:dog_catch/data/repository/ClaimRepository.dart';
-import 'package:dog_catch/data/repository/EventInfoSaveRepository.dart';
-import 'package:dog_catch/data/repository/ImageRepository.dart';
-import 'package:dog_catch/data/repository/MunicipalityRepository.dart';
-import 'package:dog_catch/data/repository/RaidRepository.dart';
-import 'package:dog_catch/utils/CustomCard.dart';
+import 'package:dog_catch/data/entities/animal_card.dart';
+import 'package:dog_catch/data/entities/animal_card_save.dart';
+import 'package:dog_catch/data/entities/animal_image.dart';
+import 'package:dog_catch/data/entities/animal_kind.dart';
+import 'package:dog_catch/data/entities/claim.dart';
+import 'package:dog_catch/data/entities/event_info.dart';
+import 'package:dog_catch/data/entities/event_info_save.dart';
+import 'package:dog_catch/data/entities/municipality.dart';
+import 'package:dog_catch/data/entities/raid.dart';
+import 'package:dog_catch/data/entities/user.dart';
+import 'package:dog_catch/data/repository/animal_card_save_repository.dart';
+import 'package:dog_catch/data/repository/animal_kind_repository.dart';
+import 'package:dog_catch/data/repository/claim_repository.dart';
+import 'package:dog_catch/data/repository/event_info_save_repository.dart';
+import 'package:dog_catch/data/repository/image_repository.dart';
+import 'package:dog_catch/data/repository/municipality_repository.dart';
+import 'package:dog_catch/data/repository/raid_repository.dart';
+import 'package:dog_catch/utils/custom_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
@@ -505,7 +505,7 @@ class _AnimalCardAddState extends State<AnimalCardAdd> {
                     child: Column(
                       children: [
                         TextField(
-                          controller: catchAddressController,
+                          controller: releaseAddressController,
                           decoration: InputDecoration(
                               label: Text(
                                   EventInfo.adressAlias + " (Улица, № дома)")),

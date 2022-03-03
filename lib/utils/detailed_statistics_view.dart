@@ -1,9 +1,10 @@
-import 'package:dog_catch/data/entities/Municipality.dart';
-import 'package:dog_catch/data/repository/MunicipalityRepository.dart';
-import 'package:dog_catch/utils/GroupedStatisticsView.dart';
+import 'package:dog_catch/data/entities/municipality.dart';
+import 'package:dog_catch/data/repository/municipality_repository.dart';
+import 'package:dog_catch/utils/grouped_statistics_view.dart';
+import 'package:dog_catch/utils/spin_kit.dart';
 import 'package:flutter/material.dart';
 
-import '../data/entities/StatisticsInfo.dart';
+import '../data/entities/statistics_info.dart';
 
 class DetailedStatisticsView extends StatefulWidget{
   const DetailedStatisticsView({Key? key, required this.callback}) : super(key: key);
@@ -20,9 +21,9 @@ class _DetailedStatisticsViewState extends State<DetailedStatisticsView> {
   final MunicipalityRepository municipalityRepository = MunicipalityRepository();
   List<Municipality>? municipalities;
   Map<String, StatisticsInfo>? statistics;
-  int municapality = 1;
+  int municipality = 1;
 
-  void uploadMunicipalytys() async{
+  void uploadMunicipalities() async{
     municipalities = await MunicipalityRepository().getAll();
     setState(() {
     });
@@ -38,7 +39,7 @@ class _DetailedStatisticsViewState extends State<DetailedStatisticsView> {
   void initState() {
     super.initState();
     if(municipalities == null){
-      uploadMunicipalytys();
+      uploadMunicipalities();
     }
     if(statistics == null){
       uploadStatistics(1);
@@ -59,17 +60,17 @@ class _DetailedStatisticsViewState extends State<DetailedStatisticsView> {
                   .toList(),
               onChanged: (int? value) {
                 setState(() {
-                  municapality = value!;
-                  uploadStatistics(municapality);
+                  municipality = value!;
+                  uploadStatistics(municipality);
                 });
               },
-              value: municapality,
+              value: municipality,
               )
-            : const Text("Загружается..."),
+            : const Center(child: SpinKit()),
         if(statistics != null)
           SizedBox(
             // TODO: constrained height
-              height: 300,
+              height: MediaQuery.of(context).size.height * 0.6 - 48,
               child: GroupedStatisticsView(map: statistics!))
       ],
     );

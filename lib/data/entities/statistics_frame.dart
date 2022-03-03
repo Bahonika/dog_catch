@@ -1,6 +1,6 @@
-import 'package:dog_catch/utils/Utf8Convert.dart';
+import 'package:dog_catch/utils/utf_8_convert.dart';
 
-import 'StatisticsInfo.dart';
+import 'statistics_info.dart';
 
 class StatisticsFrame {
 

@@ -1,17 +1,18 @@
 import 'package:better_player/better_player.dart';
-import 'package:dog_catch/data/entities/AnimalCard.dart';
-import 'package:dog_catch/data/entities/EventInfo.dart';
-import 'package:dog_catch/data/repository/EventInfoRepository.dart';
-import 'package:dog_catch/utils/CustomCard.dart';
+import 'package:dog_catch/data/entities/animal_card.dart';
+import 'package:dog_catch/data/entities/event_info.dart';
+import 'package:dog_catch/data/repository/event_info_repository.dart';
+import 'package:dog_catch/utils/custom_card.dart';
 import 'package:flutter/material.dart';
-import '../data/entities/abstract/Displayable.dart';
-import '../data/repository/abstract/Api.dart';
+import '../data/entities/abstract/displayable.dart';
+import '../data/repository/abstract/api.dart';
 
 class AnimalCardView extends StatefulWidget {
   const AnimalCardView({Key? key, required this.index, required this.data})
       : super(key: key);
 
   final int index;
+  // ignore: prefer_typing_uninitialized_variables
   final data;
 
   @override
@@ -112,7 +113,7 @@ class _AnimalCardViewState extends State<AnimalCardView> {
             const BetterPlayerConfiguration(fit: BoxFit.contain)),
       );
     } else {
-      return SizedBox();
+      return const SizedBox();
     }
   }
 
@@ -134,7 +135,7 @@ class _AnimalCardViewState extends State<AnimalCardView> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text('Item ${widget.index}'),
+          title: Text(animalCard.kind +": " + animalCard.sexToStr().toLowerCase()),
           elevation: 2,
         ),
         bottomNavigationBar: BottomNavigationBar(

@@ -1,16 +1,17 @@
-import 'package:dog_catch/data/entities/User.dart';
+import 'package:dog_catch/data/entities/user.dart';
 import 'package:dog_catch/screens/gallery.dart';
 import 'package:dog_catch/screens/login.dart';
+import 'package:dog_catch/utils/color_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 void main() {
   runApp(const MyApp());
   SystemChrome.setSystemUIOverlayStyle(
-    const SystemUiOverlayStyle(
-        statusBarColor: Color.fromRGBO(88, 60, 93, 1),
-        systemNavigationBarColor: Color.fromRGBO(88, 60, 93, 1)),
+    SystemUiOverlayStyle(
+        statusBarColor: colorList[0], systemNavigationBarColor: colorList[0]),
   );
 }
 
@@ -20,20 +21,24 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      locale: const Locale('ru', 'RU'),
       debugShowCheckedModeBanner: false,
-
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate
+      ],
+      supportedLocales: const [
+        Locale('ru'),
+      ],
       title: 'Отлов животных',
       theme: ThemeData(
           scaffoldBackgroundColor: const Color.fromRGBO(230, 230, 230, 1),
           textTheme: const TextTheme(
-            displayMedium: TextStyle(
-              fontSize: 16,
-              color: Colors.white
-            )
-          ),
+              displayMedium: TextStyle(fontSize: 16, color: Colors.white)),
           colorScheme: ColorScheme.fromSwatch()
-              .copyWith(primary: const Color.fromRGBO(88, 60, 93, 1))
-              .copyWith(secondary: const Color.fromRGBO(209, 185, 29, 1))),
+              .copyWith(primary: colorList[0])
+              .copyWith(secondary: colorList[1])),
       home: const Redirection(),
       // home: LoginPage(),
     );

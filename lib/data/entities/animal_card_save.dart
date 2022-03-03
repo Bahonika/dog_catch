@@ -1,4 +1,4 @@
-import 'package:dog_catch/data/entities/abstract/Postable.dart';
+import 'package:dog_catch/data/entities/abstract/postable.dart';
 
 
 class AnimalCardSave implements Postable{

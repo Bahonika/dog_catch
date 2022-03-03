@@ -1,6 +1,6 @@
-import '../../utils/Utf8Convert.dart';
-import 'package:dog_catch/data/entities/DateFormats.dart';
-import 'abstract/Postable.dart';
+import '../../utils/utf_8_convert.dart';
+import 'package:dog_catch/data/entities/date_formats.dart';
+import 'abstract/postable.dart';
 
 class Raid implements Postable{
 

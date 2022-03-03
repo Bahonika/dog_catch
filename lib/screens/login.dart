@@ -1,5 +1,5 @@
-import 'package:dog_catch/data/entities/User.dart';
-import 'package:dog_catch/data/repository/AuthUser.dart';
+import 'package:dog_catch/data/entities/user.dart';
+import 'package:dog_catch/data/repository/auth_user.dart';
 import 'package:dog_catch/screens/gallery.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -67,17 +67,24 @@ class _LoginPageState extends State<LoginPage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                if (isAuthFailed) const Text("Неверные данные пользователя"),
+                if (isAuthFailed)
+                  const Text(
+                    "Неверные данные пользователя",
+                    style: TextStyle(color: Colors.redAccent),
+                  ),
                 TextField(
                   controller: loginController,
-                  decoration: const InputDecoration(label: Text("Email")),
+                  decoration: const InputDecoration(label: Text("Логин")),
                 ),
                 TextField(
                   decoration: const InputDecoration(
-                    label: Text("Password"),
+                    label: Text("Пароль"),
                   ),
                   obscureText: true,
                   controller: passwordController,
+                ),
+                const SizedBox(
+                  height: 10,
                 ),
                 Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -93,24 +100,6 @@ class _LoginPageState extends State<LoginPage> {
                                       child: Gallery(user: GuestUser())))),
                           child: const Text("Войти как гость")),
                     ]),
-                ElevatedButton(
-                    onPressed: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => WillPopScope(
-                                onWillPop: () async => false,
-                                child:
-                                    Gallery(user: User(role: User.catcher))))),
-                    child: const Text(User.catcher)),
-                ElevatedButton(
-                    onPressed: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => WillPopScope(
-                                onWillPop: () async => false,
-                                child:
-                                    Gallery(user: User(role: User.comitee))))),
-                    child: const Text(User.comitee)),
               ],
             ),
           ),

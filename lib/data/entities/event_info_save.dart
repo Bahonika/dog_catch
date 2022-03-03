@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:dog_catch/data/entities/abstract/PostableMultipart.dart';
+import 'package:dog_catch/data/entities/abstract/postable_multipart.dart';
 class EventInfoSave implements PostableMultipart{
 
   final String adress;

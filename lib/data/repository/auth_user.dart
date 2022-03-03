@@ -1,8 +1,8 @@
 import 'dart:io';
 
-import 'package:dog_catch/data/repository/abstract/Api.dart';
+import 'package:dog_catch/data/repository/abstract/api.dart';
 
-import '../entities/User.dart';
+import '../entities/user.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert' as convert;
 

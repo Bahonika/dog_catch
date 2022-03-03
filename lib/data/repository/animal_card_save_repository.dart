@@ -1,5 +1,5 @@
-import 'package:dog_catch/data/entities/AnimalCardSave.dart';
-import 'package:dog_catch/data/repository/abstract/PostUpdateRepository.dart';
+import 'package:dog_catch/data/entities/animal_card_save.dart';
+import 'package:dog_catch/data/repository/abstract/post_update_repository.dart';
 
 class AnimalCardSaveRepository extends PostUpdateRepository<AnimalCardSave>{
 

@@ -1,5 +1,5 @@
-import 'package:dog_catch/data/entities/EventInfoSave.dart';
-import 'package:dog_catch/data/repository/abstract/MultipartRepository.dart';
+import 'package:dog_catch/data/entities/event_info_save.dart';
+import 'package:dog_catch/data/repository/abstract/multipart_repository.dart';
 
 class EventInfoSaveRepository extends MultipartRepository<EventInfoSave>{
 

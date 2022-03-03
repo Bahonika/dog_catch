@@ -1,13 +1,13 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
-import 'package:dog_catch/data/entities/User.dart';
-import 'package:dog_catch/data/repository/abstract/BasicRepository.dart';
+import 'package:dog_catch/data/entities/user.dart';
+import 'package:dog_catch/data/repository/abstract/basic_repository.dart';
 import 'package:http/http.dart' as http;
 
 
-import '../../entities/abstract/Postable.dart';
-import 'Api.dart';
+import '../../entities/abstract/postable.dart';
+import 'api.dart';
 
 abstract class PostUpdateRepository<T extends Postable> extends BasicRepository<T>{
 

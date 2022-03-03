@@ -1,7 +1,7 @@
-import '../../utils/Utf8Convert.dart';
-import 'DateFormats.dart';
-import 'Status.dart';
-import 'abstract/Postable.dart';
+import '../../utils/utf_8_convert.dart';
+import 'date_formats.dart';
+import 'status.dart';
+import 'abstract/postable.dart';
 
 class Claim implements Postable{
 

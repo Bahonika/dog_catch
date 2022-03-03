@@ -1,8 +1,8 @@
-import 'package:dog_catch/data/entities/abstract/Displayable.dart';
-import 'package:dog_catch/data/entities/DateFormats.dart';
-import 'package:dog_catch/utils/Utf8Convert.dart';
+import 'package:dog_catch/data/entities/abstract/displayable.dart';
+import 'package:dog_catch/data/entities/date_formats.dart';
+import 'package:dog_catch/utils/utf_8_convert.dart';
 
-import 'Status.dart';
+import 'status.dart';
 enum Sex { male, female }
 
 class AnimalCard implements Displayable {

@@ -1,5 +1,5 @@
-import 'package:dog_catch/data/entities/EventInfo.dart';
-import 'package:dog_catch/data/repository/abstract/BasicRepository.dart';
+import 'package:dog_catch/data/entities/event_info.dart';
+import 'package:dog_catch/data/repository/abstract/basic_repository.dart';
 
 class EventInfoRepository extends BasicRepository<EventInfo>{
 
