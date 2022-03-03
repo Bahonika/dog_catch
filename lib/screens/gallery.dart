@@ -506,7 +506,7 @@ class _GalleryState extends State<Gallery> with SingleTickerProviderStateMixin {
       floatingActionButton: user.role == User.comitee
           ? FloatingActionButton(
               onPressed: () => Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => const Statistics())),
+                  MaterialPageRoute(builder: (context) => Statistics(user: user as AuthorizedUser))),
               backgroundColor: Theme.of(context).colorScheme.primary,
               child: const Icon(Icons.stacked_line_chart),
             )
@@ -518,7 +518,7 @@ class _GalleryState extends State<Gallery> with SingleTickerProviderStateMixin {
                       onPressed: () => Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => const Statistics())),
+                              builder: (context) => Statistics(user: user as AuthorizedUser))),
                       backgroundColor: Theme.of(context).colorScheme.secondary,
                       child: const Icon(Icons.stacked_line_chart),
                       heroTag: "stat",
