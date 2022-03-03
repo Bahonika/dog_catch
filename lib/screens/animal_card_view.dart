@@ -1,12 +1,11 @@
+import 'package:better_player/better_player.dart';
 import 'package:dog_catch/data/entities/AnimalCard.dart';
 import 'package:dog_catch/data/entities/EventInfo.dart';
 import 'package:dog_catch/data/repository/EventInfoRepository.dart';
 import 'package:dog_catch/utils/CustomCard.dart';
 import 'package:flutter/material.dart';
-
 import '../data/entities/abstract/Displayable.dart';
 import '../data/repository/abstract/Api.dart';
-import 'package:video_player/video_player.dart';
 
 class AnimalCardView extends StatefulWidget {
   const AnimalCardView({Key? key, required this.index, required this.data})
@@ -20,7 +19,7 @@ class AnimalCardView extends StatefulWidget {
 }
 
 class _AnimalCardViewState extends State<AnimalCardView> {
-  VideoPlayerController? controller;
+  final EventInfoRepository eventInfoRepository = EventInfoRepository();
 
   int _currentIndex = 0;
   int _currentImage = 0;
@@ -29,24 +28,27 @@ class _AnimalCardViewState extends State<AnimalCardView> {
   late PageController imageController;
 
   late AnimalCard animalCard;
+
   EventInfo? catchData;
   EventInfo? releaseData;
 
+  String? catchVideoUrl;
+  String? releaseVideoUrl;
 
-  final EventInfoRepository eventInfoRepository = EventInfoRepository();
-
-  void uploadEventInfos(AnimalCard card) async{
+  void uploadEventInfos(AnimalCard card) async {
     catchData = await eventInfoRepository.getById(card.catchInfo);
-    if(card.releaseInfo != -1){
+    catchVideoUrl = "https://" + Api.siteRoot + catchData!.videoUrl;
+    if (card.releaseInfo != -1) {
       releaseData = await eventInfoRepository.getById(card.releaseInfo);
     }
-    setState(() {
-    });
-
+    if (releaseData != null) {
+      releaseVideoUrl = "https://" + Api.siteRoot + releaseData!.videoUrl;
+    }
+    setState(() {});
   }
 
   @override
-  void initState(){
+  void initState() {
     setState(() {
       animalCard = widget.data;
       uploadEventInfos(animalCard);
@@ -64,54 +66,55 @@ class _AnimalCardViewState extends State<AnimalCardView> {
     super.dispose();
   }
 
-  Widget getDataTable(String title, Displayable? displayable){
+  Widget getDataTable(String title, Displayable? displayable) {
     List<DataRow> rows = [];
     displayable?.getFields().forEach((key, value) {
-
-      rows.add(DataRow(
-              cells: <DataCell>[
-                DataCell(
-                    Text(key+":",
-                        style: const TextStyle(fontWeight: FontWeight.bold)
-                    )
-                ),
-                DataCell(Text(value)),
-              ],
-          ),
+      rows.add(
+        DataRow(
+          cells: <DataCell>[
+            DataCell(Text(key + ":",
+                style: const TextStyle(fontWeight: FontWeight.bold))),
+            DataCell(Text(value)),
+          ],
+        ),
       );
     });
-    Widget child = rows.isEmpty ?
-                  const Text(
-                    "Информация отсутствует",
-                    style: TextStyle(fontSize: 18),
-                  )
-                  :
-                  DataTable(
-                      headingRowHeight: 0,
-                      columns: [
-                        DataColumn(
-                            label: ConstrainedBox(
-                                constraints: BoxConstraints(
-                                  minWidth: MediaQuery.of(context).size.width / 3,
-                                ))
-                        ),
-                        DataColumn(
-                            label: ConstrainedBox(
-                                constraints: BoxConstraints(
-                                  minWidth: MediaQuery.of(context).size.width / 3,
-                                ))
-                        ),
-                      ],
-                      rows: rows
-                  );
+    Widget child = rows.isEmpty
+        ? const Text(
+            "Информация отсутствует",
+            style: TextStyle(fontSize: 18),
+          )
+        : DataTable(
+            headingRowHeight: 0,
+            columns: [
+              DataColumn(
+                  label: ConstrainedBox(
+                      constraints: BoxConstraints(
+                minWidth: MediaQuery.of(context).size.width / 3,
+              ))),
+              DataColumn(
+                  label: ConstrainedBox(
+                      constraints: BoxConstraints(
+                minWidth: MediaQuery.of(context).size.width / 3,
+              ))),
+            ],
+            rows: rows);
 
-    return CustomCard(
-        title: title,
-        child: child
-    );
+    return CustomCard(title: title, child: child);
   }
 
-
+  Widget getVideoWidget(String? url) {
+    if (url != null) {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 15),
+        child: BetterPlayer.network(url,
+            betterPlayerConfiguration:
+            const BetterPlayerConfiguration(fit: BoxFit.contain)),
+      );
+    } else {
+      return SizedBox();
+    }
+  }
 
   Widget circleBar(bool isActive) {
     return AnimatedContainer(
@@ -160,7 +163,7 @@ class _AnimalCardViewState extends State<AnimalCardView> {
                 Center(
                   child: Center(
                       child: Image.network(
-                        "https://"+ Api.siteRoot + animalCard.profileImagePath,
+                    "https://" + Api.siteRoot + animalCard.profileImagePath,
                     fit: BoxFit.fitHeight,
                     height: MediaQuery.of(context).size.height,
                   )),
@@ -181,9 +184,9 @@ class _AnimalCardViewState extends State<AnimalCardView> {
                                 itemBuilder: (context, index) {
                                   return Container(
                                     margin: const EdgeInsets.all(20),
-                                    child: Image.network(
-                                        "https://" + Api.siteRoot +
-                                            animalCard.imagePaths[index]),
+                                    child: Image.network("https://" +
+                                        Api.siteRoot +
+                                        animalCard.imagePaths[index]),
                                   );
                                 },
                                 onPageChanged: (int index) {
@@ -222,10 +225,11 @@ class _AnimalCardViewState extends State<AnimalCardView> {
                       ),
                       getDataTable("Основная информация", animalCard),
                       getDataTable("Информация об отлове", catchData),
+                      getVideoWidget(catchVideoUrl),
                       getDataTable("Информация о выпуске", releaseData),
+                      getVideoWidget(releaseVideoUrl),
                       const SizedBox(height: 15)
                     ],
-
                   ),
                 ),
               ],

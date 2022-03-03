@@ -497,7 +497,6 @@ class _AnimalCardAddState extends State<AnimalCardAdd> {
               ),
               //Release information block
               Visibility(
-                  child: Visibility(
                 visible: isReleased,
                 child: CustomCard(
                   title: "Информация о выпуске",
@@ -553,7 +552,7 @@ class _AnimalCardAddState extends State<AnimalCardAdd> {
                     ),
                   ),
                 ),
-              )),
+              ),
               Text(
                 validateMessage,
                 style: TextStyle(color: Colors.redAccent),
