@@ -43,6 +43,8 @@ dependencies:
   dio: ^4.0.0
   flutter_native_splash: ^2.0.5
   better_player: ^0.0.81
+  infinite_scroll_pagination: ^3.1.0
+
 
 
 flutter_native_splash:

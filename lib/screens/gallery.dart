@@ -3,6 +3,7 @@ import 'package:dog_catch/screens/animal_card_add.dart';
 import 'package:dog_catch/screens/animal_card_view.dart';
 import 'package:dog_catch/screens/login.dart';
 import 'package:dog_catch/screens/statistics.dart';
+import 'package:dog_catch/utils/animal_card_grid.dart';
 import 'package:dog_catch/utils/spin_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:dog_catch/data/entities/animal_card.dart';
@@ -23,23 +24,26 @@ class Gallery extends StatefulWidget {
 
 class _GalleryState extends State<Gallery> with SingleTickerProviderStateMixin {
   // ignore: prefer_typing_uninitialized_variables
-  var animalCardList;
+  var animalCardList = {};
 
   late TextEditingController chipController;
   late TextEditingController badgeController;
 
   late User user;
+
+  final Map<String, String> queryParams = {};
+
   final Map<String, String> queryParamsForFilter = {};
   final Map<String, String> queryParamsForSearch = {};
   var repository = AnimalCardRepository();
 
   Future<void> getData(Map<String, String> queryParams) async {
-    var list = await repository.getAll(queryParams: queryParams);
-    var sharedPrefs = await SharedPreferences.getInstance();
-    user = widget.user ?? await restoreFromSharedPrefs(sharedPrefs);
-    animalCardList = list;
+    // var list = await repository.getAll(queryParams: queryParams);
     setState(() {});
   }
+
+  Future<List<AnimalCard>> uploadAnimalCards(int page) async =>
+      await repository.getAll(page: page, queryParams: queryParams);
 
   void logout() async {
     var prefs = await SharedPreferences.getInstance();
@@ -388,77 +392,14 @@ class _GalleryState extends State<Gallery> with SingleTickerProviderStateMixin {
         ],
       ),
       body: animalCardList != null
-          ? animalCardList.length != 0
-              ? Stack(children: [
+          ?  Stack(children: [
                   Padding(
                       padding: const EdgeInsets.only(top: 15.0),
-                      child: GridView.count(
-                          crossAxisCount: 2,
-                          padding: EdgeInsets.all(
-                              MediaQuery.of(context).size.width * 0.05),
-                          crossAxisSpacing:
-                              MediaQuery.of(context).size.width * 0.05,
-                          mainAxisSpacing:
-                              MediaQuery.of(context).size.width * 0.05,
-                          children: List.generate(animalCardList?.length ?? 0,
-                              (index) {
-                            return Hero(
-                                tag: index,
-                                child: GestureDetector(
-                                    onTap: () => Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                AnimalCardView(
-                                                    index: index,
-                                                    data: animalCardList[
-                                                        index]))),
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        borderRadius: const BorderRadius.only(
-                                          topLeft: Radius.circular(25),
-                                        ),
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: Colors.grey.withOpacity(0.5),
-                                            spreadRadius: 2,
-                                            blurRadius: 7,
-                                            offset: const Offset(0, 3),
-                                          ),
-                                        ],
-                                      ),
-                                      child: ClipRRect(
-                                          borderRadius: const BorderRadius.only(
-                                            topLeft: Radius.circular(25),
-                                          ),
-                                          child: Container(
-                                              decoration:
-                                                  createStatusDecoration(
-                                                      animalCardList[index]),
-                                              height: MediaQuery.of(context)
-                                                      .size
-                                                      .width *
-                                                  0.41,
-                                              width: MediaQuery.of(context)
-                                                      .size
-                                                      .width *
-                                                  0.41,
-                                              child: ClipRRect(
-                                                borderRadius:
-                                                    const BorderRadius.only(
-                                                  bottomRight:
-                                                      Radius.circular(25),
-                                                ),
-                                                child: Image.network(
-                                                  "https://" +
-                                                      Api.siteRoot +
-                                                      animalCardList[index]
-                                                          .profileImagePath,
-                                                  fit: BoxFit.cover,
-                                                ),
-                                              ))),
-                                    )));
-                          }))),
+                      child: AnimalCardGrid(
+                        fetchCallback: uploadAnimalCards,
+                        isLastCallback: () => !repository.hasNext,
+                      )
+                  ),
                   Align(
                     alignment: Alignment.topCenter,
                     child: Container(
@@ -483,16 +424,16 @@ class _GalleryState extends State<Gallery> with SingleTickerProviderStateMixin {
                         )),
                   ),
                 ])
-              : Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  child: const Center(
-                    child: Text(
-                      "Список животных пуст, попробуйте убрать некоторые фильтры",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 20),
-                    ),
-                  ),
-                )
+              // : Container(
+              //     padding: const EdgeInsets.symmetric(horizontal: 8),
+              //     child: const Center(
+              //       child: Text(
+              //         "Список животных пуст, попробуйте убрать некоторые фильтры",
+              //         textAlign: TextAlign.center,
+              //         style: TextStyle(fontSize: 20),
+              //       ),
+              //     ),
+              //   )
           : const Center(child: SpinKit()),
       floatingActionButton: user.role == User.comitee
           ? FloatingActionButton(

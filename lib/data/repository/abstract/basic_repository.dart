@@ -12,6 +12,14 @@ abstract class BasicRepository<T> extends Api{
 
   T fromJson(json);
 
+  List<T> convertToList(dynamic json){
+    List<T> list = [];
+    for(final item in json){
+      list.add(fromJson(item));
+    }
+    return list;
+  }
+
   Future<List<T>> getAll({Map<String, String>? queryParams, AuthorizedUser? user}) async{
     var uri = Uri.https(Api.siteRoot, apiPath(), queryParams);
     var response = user == null ? await http.get(uri) :
@@ -19,12 +27,7 @@ abstract class BasicRepository<T> extends Api{
                                       headers: {'Authorization': "Token ${user.token}"});
     var status = response.statusCode;
     if (status == 200){
-      List<T> list = [];
-      var json = convert.jsonDecode(response.body);
-      for(final item in json){
-        list.add(fromJson(item));
-      }
-      return list;
+      return convertToList(convert.jsonDecode(response.body));
     }
     throw HttpException("can't access $uri Status: $status");
   }
