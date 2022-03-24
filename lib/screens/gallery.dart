@@ -1,6 +1,4 @@
-import 'package:dog_catch/data/repository/animal_card_repository.dart';
 import 'package:dog_catch/screens/animal_card_add.dart';
-import 'package:dog_catch/screens/animal_card_view.dart';
 import 'package:dog_catch/screens/login.dart';
 import 'package:dog_catch/screens/statistics.dart';
 import 'package:dog_catch/utils/animal_card_grid.dart';
@@ -11,7 +9,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../data/entities/status.dart';
 import '../data/entities/user.dart';
-import '../data/repository/abstract/api.dart';
 
 class Gallery extends StatefulWidget {
   const Gallery({Key? key, this.user}) : super(key: key);
@@ -35,16 +32,11 @@ class _GalleryState extends State<Gallery> with SingleTickerProviderStateMixin {
 
   final Map<String, String> queryParamsForFilter = {};
   final Map<String, String> queryParamsForSearch = {};
-  var repository = AnimalCardRepository();
 
   Future<void> getData(Map<String, String> queryParams) async {
     // var list = await repository.getAll(queryParams: queryParams);
     setState(() {});
   }
-
-  Future<List<AnimalCard>> uploadAnimalCards(int page) async =>
-      await repository.getAll(page: page, queryParams: queryParams);
-
   void logout() async {
     var prefs = await SharedPreferences.getInstance();
     user.clear(prefs);
@@ -396,8 +388,7 @@ class _GalleryState extends State<Gallery> with SingleTickerProviderStateMixin {
                   Padding(
                       padding: const EdgeInsets.only(top: 15.0),
                       child: AnimalCardGrid(
-                        fetchCallback: uploadAnimalCards,
-                        isLastCallback: () => !repository.hasNext,
+                        queryParams: queryParamsForFilter,
                       )
                   ),
                   Align(

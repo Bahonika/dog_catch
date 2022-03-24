@@ -18,7 +18,8 @@ class StatisticsRepository extends Api{
       'start_date': serverDateFormat.format(start),
       'end_date': serverDateFormat.format(end),
     };
-    var uri = Uri.https(Api.siteRoot, apiPath(), queryParams);
+    // var uri = Uri.https(Api.siteRoot, apiPath(), queryParams);
+    var uri = Uri.http(Api.siteRoot, apiPath(), queryParams);
     var response = await http.get(uri, headers: {'Authorization': "Token ${user.token}"});
     var status = response.statusCode;
     if(response.statusCode == 200){
@@ -36,7 +37,8 @@ class StatisticsRepository extends Api{
       'end_date': serverDateFormat.format(end),
       'municipality_id': municipality.toString()
     };
-    var uri = Uri.https(Api.siteRoot, apiPath(), queryParams);
+    // var uri = Uri.https(Api.siteRoot, apiPath(), queryParams);
+    var uri = Uri.http(Api.siteRoot, apiPath(), queryParams);
     var response = await http.get(uri, headers: {'Authorization': "Token ${user.token}"});
     var status = response.statusCode;
     if(response.statusCode == 200){

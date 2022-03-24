@@ -38,12 +38,12 @@ class _AnimalCardViewState extends State<AnimalCardView> {
 
   void uploadEventInfos(AnimalCard card) async {
     catchData = await eventInfoRepository.getById(card.catchInfo);
-    catchVideoUrl = "https://" + Api.siteRoot + catchData!.videoUrl;
+    catchVideoUrl = Api.mediaPath + catchData!.videoUrl;
     if (card.releaseInfo != -1) {
       releaseData = await eventInfoRepository.getById(card.releaseInfo);
     }
     if (releaseData != null) {
-      releaseVideoUrl = "https://" + Api.siteRoot + releaseData!.videoUrl;
+      releaseVideoUrl = Api.mediaPath + releaseData!.videoUrl;
     }
     setState(() {});
   }
@@ -164,7 +164,7 @@ class _AnimalCardViewState extends State<AnimalCardView> {
                 Center(
                   child: Center(
                       child: Image.network(
-                    "https://" + Api.siteRoot + animalCard.profileImagePath,
+                    Api.mediaPath + animalCard.profileImagePath,
                     fit: BoxFit.fitHeight,
                     height: MediaQuery.of(context).size.height,
                   )),
@@ -185,8 +185,8 @@ class _AnimalCardViewState extends State<AnimalCardView> {
                                 itemBuilder: (context, index) {
                                   return Container(
                                     margin: const EdgeInsets.all(20),
-                                    child: Image.network("https://" +
-                                        Api.siteRoot +
+                                    child: Image.network(
+                                        Api.mediaPath +
                                         animalCard.imagePaths[index]),
                                   );
                                 },

@@ -1,20 +1,18 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 
 import '../data/entities/animal_card.dart';
 import '../data/entities/status.dart';
 import '../data/repository/abstract/api.dart';
+import '../data/repository/animal_card_repository.dart';
 import '../screens/animal_card_view.dart';
 
 class AnimalCardGrid extends StatefulWidget {
   const AnimalCardGrid({Key? key,
-                        required this.fetchCallback,
-                        required this.isLastCallback})
+                        required this.queryParams})
       : super(key: key);
 
-  final Future<List<AnimalCard>> Function(int) fetchCallback;
-  final bool Function() isLastCallback;
+  final Map<String, String> queryParams;
 
   @override
   State<StatefulWidget> createState() => AnimalCardGridState();
@@ -22,24 +20,31 @@ class AnimalCardGrid extends StatefulWidget {
 
 class AnimalCardGridState extends State<AnimalCardGrid>{
 
+  // ValueNotifier<Map<String, String>>? queryParamsChangeNotifier;
+
+  final repository = AnimalCardRepository();
+
   final _pagingController = PagingController<int, AnimalCard>(
        firstPageKey: 1,
   );
 
   @override
   void initState() {
-    // 3
     _pagingController.addPageRequestListener((pageKey) {
       _fetchPage(pageKey);
     });
+    // TODO: auto refresh when queryParams changed
+    // queryParams = widget.queryParams;
+    // queryParamsChangeNotifier = ValueNotifier(queryParams);
+    // queryParamsChangeNotifier?.addListener(() {
+    //   _pagingController.refresh();
+    // });
     super.initState();
   }
 
   Future<void> _fetchPage(int pageIndex) async{
-    final cards = await widget.fetchCallback(pageIndex);
-
-    if (widget.isLastCallback()) {
-      // 3
+    final cards = await repository.getAll(page: pageIndex, queryParams: widget.queryParams);
+    if (!repository.hasNext) {
       _pagingController.appendLastPage(cards);
     } else {
       _pagingController.appendPage(cards, pageIndex + 1);
@@ -115,8 +120,7 @@ class AnimalCardGridState extends State<AnimalCardGrid>{
                           Radius.circular(25),
                         ),
                         child: Image.network(
-                          "https://" +
-                              Api.siteRoot +
+                              Api.mediaPath +
                               animalCard.profileImagePath,
                           fit: BoxFit.cover,
                         ),
@@ -132,7 +136,7 @@ class AnimalCardGridState extends State<AnimalCardGrid>{
         onRefresh: () => Future.sync(
       // 2
           () => _pagingController.refresh(),
-    ),
+      ),
       child:
 
       PagedGridView(
